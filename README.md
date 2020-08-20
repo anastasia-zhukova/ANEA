@@ -1,2 +1,2 @@
-# nea
-Automatic Named Entity Annotation
+# ANEA
+Automatic (Named) Entity Annotation

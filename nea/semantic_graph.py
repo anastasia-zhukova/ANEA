@@ -14,6 +14,7 @@ NAME_SIM = "name_sim"
 MEAN_SIM = "mean_sim"
 SUM_SIM = "sum_sim"
 IMPACT_SCORE = "impact_score"
+TERM_IMPACT_SCORE = "term_impact_score"
 SIZE = "size"
 LENGTH = "length"
 WORDS = "words"
@@ -129,10 +130,14 @@ class NEASemanticGraph:
         label_dict_dist = {}
 
         for k in list(label_dict_short):
-            if k in list(self.dist_df.columns):
-                arr = [v for v in self.dist_df[k].values if v > 0]
-                if len(arr):
-                    label_dict_dist[k] = np.mean(arr)
+            if k not in list(self.dist_df.columns):
+                continue
+            arr = []
+            for w in label_dict_short[k]:
+                if self.dist_df.loc[w, k] > 0:
+                    arr.append(self.dist_df.loc[w, k])
+            if len(arr):
+                label_dict_dist[k] = np.mean(arr)
 
         sum_df = pd.DataFrame(columns=[SIZE, LENGTH, MEAN_SIM, NAME_SIM, SUM_SIM, IMPACT_SCORE, WORDS])
         for node, words in label_dict_short.items():
@@ -278,7 +283,7 @@ class NEASemanticGraph:
                 repr_dict_clean[index_2] = repr_dict_clean[index_2] - intersect
 
         clean_df, clean_df_short = self._build_init_table(repr_dict_clean)
-
+        result_dict = copy.copy(repr_dict_clean)
         clean_df_short.sort_values(IMPACT_SCORE, ascending=False, inplace=True)
 
         for n, (index, row) in enumerate(clean_df_short.iterrows()):
@@ -289,117 +294,89 @@ class NEASemanticGraph:
                 candidates = words_overlap_dict[w]
                 cand_df = pd.DataFrame(columns=[MEAN_SIM, NAME_SIM, SUM_SIM, LENGTH])
 
+                for cand in candidates:
+                    words = row[WORDS].split(", ")
+                    mean_ = np.mean(cs(self.vector_df.loc[words])) if len(words) else 0
+                    name_ = cs([self.vector_df.loc[w].values], [self.vector_df.loc[cand].values])[0][0]
+                    cand_df = cand_df.append(pd.DataFrame({
+                        LENGTH: self.dist_df.loc[w, cand] if self.dist_df.loc[w, cand] > 0 else 1,
+                        # else 1? otherwise the impact score will be 0
+                        MEAN_SIM: mean_,
+                        NAME_SIM: name_,
+                        SUM_SIM: mean_ + name_,
+                        TERM_IMPACT_SCORE: 0,
+                        WORDS: ", ".join(words)
+                    }, index=[cand]))
+                    cand_df.loc[cand, TERM_IMPACT_SCORE] = cand_df.loc[cand, MEAN_SIM] *  cand_df.loc[cand, NAME_SIM] \
+                                                      * cand_df.loc[cand, SUM_SIM] * cand_df.loc[cand, LENGTH]
+                if cand_df[TERM_IMPACT_SCORE].max() > 0:
+                    best_cand = cand_df[TERM_IMPACT_SCORE].idxmax()
+                    result_dict[best_cand] = result_dict[best_cand].add(w)
+                del words_overlap_dict[w]
 
-
-        # sim_df = pd.DataFrame(np.zeros((len(best_reprs_2), len(best_reprs_2))), columns=list(best_reprs_2.index),
-        #                       index=list(best_reprs_2.index))
-
-
-        # for n, (index_1, row_1) in enumerate(best_reprs_2.iterrows()):
-        #     words_1 = set(row_1[WORDS].split(", "))
-        #     for m, (index_2, row_2) in enumerate(best_reprs_2.iterrows()):
-        #         words_2 = set(row_2[WORDS].split(", "))
-        #         if m > n:
-        #             continue
-        #         intersect = set(words_1).intersection(set(words_2))
-        #         if len(intersect):
-        #             sim_df.loc[str(index_1), str(index_2)] = len(intersect)
-        #             sim_df.loc[str(index_2), str(index_1)] = len(intersect)
-        #             sim_words_df.loc[index_1, index_2] = ", ".join(intersect)
-        #             sim_words_df.loc[index_2, index_1] = ", ".join(intersect)
-        #         else:
-        #             sim_words_df.loc[index_1, index_2] = ""
-        #             sim_words_df.loc[index_2, index_1] = ""
-        #
-        # selected_label_dict = {index: row[WORDS].split(", ") for index, row in best_reprs_2.iterrows()}
-        # best_reprs_2.sort_values(MEAN_SIM, ascending=True, inplace=True)
-        #
-        # repr_dict = {}
-        #
-        # # to_remove = []
-        # for i, (index, row) in enumerate(best_reprs_2.iterrows()):
-        #     # if i > 10:
-        #     #     break
-        #     words_1 = set(selected_label_dict[index])
-        #     inters_dict = {}
-        #     for key, val in selected_label_dict.items():
-        #         if index == key:
-        #             continue
-        #         words_2 = set(val)
-        #         intersect = words_1.intersection(words_2)
-        #         if len(intersect):
-        #             inters_dict[key] = intersect
-        #     if len(inters_dict) == 0:
-        #         # best_reprs_body = best_reprs_body.append(best_reprs_2.loc[index])
-        #         repr_dict[index] = row[WORDS].split(", ")
-        #         continue
-        #     try:
-        #         local_df = best_reprs_2[best_reprs_2[MEAN_SIM] > row[MEAN_SIM]].loc[
-        #             list(inters_dict.keys())].sort_values(MEAN_SIM, ascending=False).dropna()
-        #     except KeyError:
-        #         continue
-        #     new_composition = words_1
-        #     for cand in list(local_df.index):
-        #         new_composition = new_composition - inters_dict[cand]
-        #         selected_label_dict[index] = new_composition
-        #     repr_dict[index] = new_composition
-
-        repr_dict_short = {k: v for k, v in repr_dict_clean.items() if len(v) >= MIN_WORDS}
+        repr_dict_short = {k: v for k, v in result_dict.items() if len(v) >= MIN_WORDS}
         best_reprs_body, best_reprs_body_short = self._build_init_table(repr_dict_short)
         return best_reprs_body_short
 
-
     def _add_border_terms(self, best_reprs_body):
         # assign the remaining terms to the bins
-        title_mean_df = pd.DataFrame(columns=["d" + str(i) for i in range(self.model.vector_size)])
-        for word in list(best_reprs_body.index):
-            vector_df = pd.DataFrame(columns=["d" + str(i) for i in range(self.model.vector_size)])
-            words_ = set(best_reprs_body.loc[word, WORDS].split(", "))
-            for w in words_:
-                vector = self.model.get_vector(w)
-                vector_df = vector_df.append(
-                    pd.DataFrame([vector],
-                                 columns=["d" + str(i) for i in range(self.model.vector_size)],
-                                 index=[w])) if vector is not None else vector_df
-            mean_vector = np.mean(vector_df.values, axis=0)
-            title_mean_df = title_mean_df.append(pd.DataFrame([mean_vector], index=[word],
-                                                              columns=["d" + str(i) for i in range(self.model.vector_size)]))
 
         all_words = set().union(*[v.split(", ") for k, v in best_reprs_body[WORDS].items()])
-        all_leaves = [k for k, v in self.graph.all_nodes.items() if v.term_id is not None]
+        all_leaves = list(self.dist_df.index)
+        # all_leaves = [k for k, v in self.graph.all_nodes.items() if v.term_id is not None]
         not_sorted = set(all_leaves) - all_words
+        result_dict = {index: row[WORDS].split(", ") for index, row in best_reprs_body.iterrows()}
 
-        titles_df = pd.DataFrame(columns=["d" + str(i) for i in range(self.model.vector_size)])
-        for w in list(best_reprs_body.index):
-            vector = self.model.get_vector(w)
-            titles_df = titles_df.append(
-                pd.DataFrame([vector],
-                             columns=["d" + str(i) for i in range(self.model.vector_size)],
-                             index=[w])) if vector is not None else titles_df
+        for new_term in not_sorted:
+            pass
 
-        newly_added = {}
-        for i, w in enumerate(not_sorted.union(list(self.graph.not_in_graph))):
-            sim_comp_new_df = pd.DataFrame(columns=["sim_name", "sim_vals"])
-            vector = self.model.get_vector(w)
-            if vector is None:
-                continue
-            for t, row in titles_df.iterrows():
-                sim = cs([row], [vector])
-                sim_val = cs([title_mean_df.loc[t].values], [vector])
-                sim_comp_new_df = sim_comp_new_df.append(pd.DataFrame({"sim_name": sim[0][0], "sim_vals": sim_val[0][0]},
-                                                                      index=[t]))
-            # TODO is this eefective?
-            if np.max(sim_comp_new_df["sim_name"].values) >= 0.5:
-                best_val = sim_comp_new_df["sim_name"].idxmax()
-                if best_val not in newly_added:
-                    newly_added[best_val] = set()
-                newly_added[best_val].add(w)
-            elif np.max(sim_comp_new_df["sim_vals"].values) >= 0.5:
-                best_val = sim_comp_new_df["sim_vals"].idxmax()
-                if best_val not in newly_added:
-                    newly_added[best_val] = set()
-                newly_added[best_val].add(w)
-
-        final_entities = {k: v.split(", ") + list(newly_added[k]) if k in newly_added else v.split(", ")
-                          for k, v in best_reprs_body[WORDS].items()}
-        return final_entities
+        # title_mean_df = pd.DataFrame(columns=["d" + str(i) for i in range(self.model.vector_size)])
+        # for word in list(best_reprs_body.index):
+        #     vector_df = pd.DataFrame(columns=["d" + str(i) for i in range(self.model.vector_size)])
+        #     words_ = set(best_reprs_body.loc[word, WORDS].split(", "))
+        #     for w in words_:
+        #         vector = self.model.get_vector(w)
+        #         vector_df = vector_df.append(
+        #             pd.DataFrame([vector],
+        #                          columns=["d" + str(i) for i in range(self.model.vector_size)],
+        #                          index=[w])) if vector is not None else vector_df
+        #     mean_vector = np.mean(vector_df.values, axis=0)
+        #     title_mean_df = title_mean_df.append(pd.DataFrame([mean_vector], index=[word],
+        #                                                       columns=["d" + str(i) for i in range(self.model.vector_size)]))
+        #
+        #
+        #
+        # titles_df = pd.DataFrame(columns=["d" + str(i) for i in range(self.model.vector_size)])
+        # for w in list(best_reprs_body.index):
+        #     vector = self.model.get_vector(w)
+        #     titles_df = titles_df.append(
+        #         pd.DataFrame([vector],
+        #                      columns=["d" + str(i) for i in range(self.model.vector_size)],
+        #                      index=[w])) if vector is not None else titles_df
+        #
+        # newly_added = {}
+        # for i, w in enumerate(not_sorted.union(list(self.graph.not_in_graph))):
+        #     sim_comp_new_df = pd.DataFrame(columns=["sim_name", "sim_vals"])
+        #     vector = self.model.get_vector(w)
+        #     if vector is None:
+        #         continue
+        #     for t, row in titles_df.iterrows():
+        #         sim = cs([row], [vector])
+        #         sim_val = cs([title_mean_df.loc[t].values], [vector])
+        #         sim_comp_new_df = sim_comp_new_df.append(pd.DataFrame({"sim_name": sim[0][0], "sim_vals": sim_val[0][0]},
+        #                                                               index=[t]))
+        #     # TODO is this eefective?
+        #     if np.max(sim_comp_new_df["sim_name"].values) >= 0.5:
+        #         best_val = sim_comp_new_df["sim_name"].idxmax()
+        #         if best_val not in newly_added:
+        #             newly_added[best_val] = set()
+        #         newly_added[best_val].add(w)
+        #     elif np.max(sim_comp_new_df["sim_vals"].values) >= 0.5:
+        #         best_val = sim_comp_new_df["sim_vals"].idxmax()
+        #         if best_val not in newly_added:
+        #             newly_added[best_val] = set()
+        #         newly_added[best_val].add(w)
+        #
+        # final_entities = {k: v.split(", ") + list(newly_added[k]) if k in newly_added else v.split(", ")
+        #                   for k, v in best_reprs_body[WORDS].items()}
+        return result_dict
