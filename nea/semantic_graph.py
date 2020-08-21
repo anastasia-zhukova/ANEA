@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
 import copy
-from graph.graph import Graph
 import math
+from nea.annotator import Annotator
 from sklearn.metrics.pairwise import cosine_similarity as cs
 
 MAX_LEVELS = 3
@@ -20,7 +20,7 @@ LENGTH = "length"
 WORDS = "words"
 
 
-class NEASemanticGraph:
+class NEASemanticGraph(Annotator):
     def __init__(self, graph):
         self.graph = graph
         self.model = graph.model
@@ -43,8 +43,8 @@ class NEASemanticGraph:
         best_reprs = self._larger_reprs(best_mean)
         best_reprs_2 = self._overlap_repr(best_reprs)
         best_reprs_body = self._repr_cleaning(best_reprs_2)
-        final_entities = self._add_border_terms(best_reprs_body)
-        return final_entities
+        final_entities, outliers = self._add_border_terms(best_reprs_body)
+        return final_entities, outliers
 
     def _build_vector_df(self):
         self.vector_df = pd.DataFrame(columns=["d" + str(i) for i in range(self.model.vector_size)])
@@ -61,6 +61,7 @@ class NEASemanticGraph:
                                                                     columns=["d" + str(i) for i in
                                                                              range(self.model.vector_size)],
                                                                     index=[w]))
+        self.vector_df.drop_duplicates(inplace=True)
 
     def _collect_labels(self):
 
@@ -136,29 +137,40 @@ class NEASemanticGraph:
             for w in label_dict_short[k]:
                 if self.dist_df.loc[w, k] > 0:
                     arr.append(self.dist_df.loc[w, k])
-            if len(arr):
-                label_dict_dist[k] = np.mean(arr)
+            # if len(arr):
+            label_dict_dist[k] = arr
 
         sum_df = pd.DataFrame(columns=[SIZE, LENGTH, MEAN_SIM, NAME_SIM, SUM_SIM, IMPACT_SCORE, WORDS])
         for node, words in label_dict_short.items():
             vector_df = self.vector_df.loc[words]
-            try:
-                mean_ = np.mean(cs(vector_df))
-                name_ = cs([np.mean(vector_df.values, axis=0)], [self.vector_df.loc[node].values])[0][0]
+            if len(words):
+                try:
+                    mean_ = np.mean(cs(vector_df))
+                    name_ = cs([np.mean(vector_df.values, axis=0)], [self.vector_df.loc[node].values])[0][0]
+                    sum_df = sum_df.append(pd.DataFrame({
+                        SIZE: len(words),
+                        LENGTH: np.mean(label_dict_dist[node]) if len(label_dict_dist) else 1,
+                        MEAN_SIM: mean_,
+                        NAME_SIM: name_,
+                        SUM_SIM: mean_ + name_,
+                        IMPACT_SCORE: 0,
+                        WORDS: ", ".join(words)
+                    }, index=[node]))
+                    sum_df.loc[node, IMPACT_SCORE] = math.log(sum_df.loc[node, SIZE], 2) * sum_df.loc[node, MEAN_SIM] * \
+                                                     sum_df.loc[node, NAME_SIM] * sum_df.loc[node, SUM_SIM] * \
+                                                     sum_df.loc[node, LENGTH]
+                except ValueError:
+                    continue
+            else:
                 sum_df = sum_df.append(pd.DataFrame({
-                    SIZE: len(words),
-                    LENGTH: label_dict_dist[node] if node in label_dict_dist else 1, # else 1? otherwise the impact score will be 0
-                    MEAN_SIM: mean_,
-                    NAME_SIM: name_,
-                    SUM_SIM: mean_ + name_,
+                    SIZE: 0,
+                    LENGTH: 1,
+                    MEAN_SIM: 0,
+                    NAME_SIM: 0,
+                    SUM_SIM:0,
                     IMPACT_SCORE: 0,
-                    WORDS: ", ".join(words)
+                    WORDS: ""
                 }, index=[node]))
-                sum_df.loc[node, IMPACT_SCORE] = math.log(sum_df.loc[node, SIZE], 2) * sum_df.loc[node, MEAN_SIM] * \
-                                                 sum_df.loc[node, NAME_SIM] * sum_df.loc[node, SUM_SIM] * \
-                                                 sum_df.loc[node, LENGTH]
-            except ValueError:
-                continue
 
         sum_df.sort_values([SIZE, WORDS, NAME_SIM], ascending=[False, False, False], inplace=True)
         groups = sum_df.groupby(WORDS, as_index="False")
@@ -167,8 +179,9 @@ class NEASemanticGraph:
             self.repr_dict = repr_dict
         else:
             self.repr_dict.update(repr_dict)
-        sum_short_df = sum_df.drop_duplicates(subset=[WORDS])
-        sum_short_df.sort_values([NAME_SIM, MEAN_SIM, SIZE], ascending=[False, False, False], inplace=True)
+        # sum_df.sort_values([NAME_SIM, MEAN_SIM, SIZE], ascending=[False, False, False], inplace=True)
+        sum_df.sort_values([IMPACT_SCORE], ascending=[False], inplace=True)
+        sum_short_df = sum_df[sum_df[WORDS] != ""].drop_duplicates(subset=[WORDS]).append(sum_df[sum_df[WORDS] == ""])
         # return sum_df.sort_values(SIZE, ascending=False), sum_short_df.sort_values(SIZE, ascending=False)
         return sum_df.sort_values(SIZE, ascending=False), sum_short_df.sort_values(SIZE, ascending=False)
 
@@ -232,12 +245,7 @@ class NEASemanticGraph:
             if not len(overlap_df):
                 print(index_1)
                 continue
-            impact = []
-            for index, row in overlap_df.iterrows():
-                # impact.append((row[MEAN_SIM] * row[NAME_SIM] * row[SIZE] * row[SUM_SIM]) / row[LENGTH])
-                impact.append(row[IMPACT_SCORE])
-            overlap_df[IMPACT_SCORE] = impact
-            overlap_sim_df.loc[index_1, str(overlap_df[IMPACT_SCORE].idxmax())] = 1
+            overlap_sim_df.loc[index_1, str(pd.to_numeric(overlap_df[IMPACT_SCORE]).idxmax())] = 1
 
         to_remove = []
         for index in list(overlap_sim_df.index):
@@ -270,7 +278,7 @@ class NEASemanticGraph:
                 for w in intersect:
                     if w not in words_overlap_dict:
                         words_overlap_dict[w] = set()
-                    words_overlap_dict[w] = words_overlap_dict[w].union({words_1, words_2})
+                    words_overlap_dict[w] = words_overlap_dict[w].union({index_1, index_2})
 
                 if len(intersect):
                     sim_words_df.loc[index_1, index_2] = ", ".join(intersect)
@@ -282,9 +290,11 @@ class NEASemanticGraph:
                 repr_dict_clean[index_1] = repr_dict_clean[index_1] - intersect
                 repr_dict_clean[index_2] = repr_dict_clean[index_2] - intersect
 
+        repr_dict_clean = {k:v for k,v in sorted(repr_dict_clean.items(), reverse=True, key=lambda x: len(x[1]))}
         clean_df, clean_df_short = self._build_init_table(repr_dict_clean)
         result_dict = copy.copy(repr_dict_clean)
         clean_df_short.sort_values(IMPACT_SCORE, ascending=False, inplace=True)
+        sim_words_df.fillna("", inplace=True)
 
         for n, (index, row) in enumerate(clean_df_short.iterrows()):
             conflicting_words = set().union(*[v.split(", ") for v in sim_words_df.loc[index].values])
@@ -295,8 +305,11 @@ class NEASemanticGraph:
                 cand_df = pd.DataFrame(columns=[MEAN_SIM, NAME_SIM, SUM_SIM, LENGTH])
 
                 for cand in candidates:
-                    words = row[WORDS].split(", ")
-                    mean_ = np.mean(cs(self.vector_df.loc[words])) if len(words) else 0
+                    words = clean_df_short.loc[cand, WORDS].split(", ") if clean_df_short.loc[cand, WORDS] != "" else []
+                    mean_ = np.mean(cs(self.vector_df.loc[words],
+                                       [self.vector_df.loc[w].values] if len(self.vector_df.loc[w].shape) == 1
+                                       else self.vector_df.loc[w])) \
+                        if len(words) else 0
                     name_ = cs([self.vector_df.loc[w].values], [self.vector_df.loc[cand].values])[0][0]
                     cand_df = cand_df.append(pd.DataFrame({
                         LENGTH: self.dist_df.loc[w, cand] if self.dist_df.loc[w, cand] > 0 else 1,
@@ -307,8 +320,7 @@ class NEASemanticGraph:
                         TERM_IMPACT_SCORE: 0,
                         WORDS: ", ".join(words)
                     }, index=[cand]))
-                    cand_df.loc[cand, TERM_IMPACT_SCORE] = cand_df.loc[cand, MEAN_SIM] *  cand_df.loc[cand, NAME_SIM] \
-                                                      * cand_df.loc[cand, SUM_SIM] * cand_df.loc[cand, LENGTH]
+                    cand_df.loc[cand, TERM_IMPACT_SCORE] = cand_df.loc[cand, SUM_SIM] * cand_df.loc[cand, LENGTH]
                 if cand_df[TERM_IMPACT_SCORE].max() > 0:
                     best_cand = cand_df[TERM_IMPACT_SCORE].idxmax()
                     result_dict[best_cand] = result_dict[best_cand].add(w)
@@ -321,62 +333,31 @@ class NEASemanticGraph:
     def _add_border_terms(self, best_reprs_body):
         # assign the remaining terms to the bins
 
+        best_reprs_body.sort_values(IMPACT_SCORE, ascending=False, inplace=True)
+
         all_words = set().union(*[v.split(", ") for k, v in best_reprs_body[WORDS].items()])
         all_leaves = list(self.dist_df.index)
         # all_leaves = [k for k, v in self.graph.all_nodes.items() if v.term_id is not None]
         not_sorted = set(all_leaves) - all_words
+        outliers = []
         result_dict = {index: row[WORDS].split(", ") for index, row in best_reprs_body.iterrows()}
 
+        # impact score with a border point should be >= of the impact score w/o this new term
         for new_term in not_sorted:
-            pass
+            was_broke = False
+            for repr, row in best_reprs_body.iterrows():
+                updated_words = row[WORDS].split(", ")
+                updated_words.append(new_term)
+                mean_ = np.mean(cs(self.vector_df.loc[updated_words])) if len(updated_words) else 0
+                name_ = cs(self.vector_df.loc[updated_words], [self.vector_df.loc[repr].values])[0][0]
+                dist_arr = [self.dist_df.loc[w, repr] for w in updated_words if self.dist_df.loc[w, repr] > 0]
+                length_ = np.mean(dist_arr) if len(dist_arr) > 0 else 1
+                impact_score = math.log(len(updated_words), 2) * mean_ * name_ * (mean_ + name_) * length_
+                if impact_score >= row[IMPACT_SCORE]:
+                    result_dict[repr] += [new_term]
+                    was_broke = True
+                    break
+            if not was_broke:
+                outliers.append(new_term)
 
-        # title_mean_df = pd.DataFrame(columns=["d" + str(i) for i in range(self.model.vector_size)])
-        # for word in list(best_reprs_body.index):
-        #     vector_df = pd.DataFrame(columns=["d" + str(i) for i in range(self.model.vector_size)])
-        #     words_ = set(best_reprs_body.loc[word, WORDS].split(", "))
-        #     for w in words_:
-        #         vector = self.model.get_vector(w)
-        #         vector_df = vector_df.append(
-        #             pd.DataFrame([vector],
-        #                          columns=["d" + str(i) for i in range(self.model.vector_size)],
-        #                          index=[w])) if vector is not None else vector_df
-        #     mean_vector = np.mean(vector_df.values, axis=0)
-        #     title_mean_df = title_mean_df.append(pd.DataFrame([mean_vector], index=[word],
-        #                                                       columns=["d" + str(i) for i in range(self.model.vector_size)]))
-        #
-        #
-        #
-        # titles_df = pd.DataFrame(columns=["d" + str(i) for i in range(self.model.vector_size)])
-        # for w in list(best_reprs_body.index):
-        #     vector = self.model.get_vector(w)
-        #     titles_df = titles_df.append(
-        #         pd.DataFrame([vector],
-        #                      columns=["d" + str(i) for i in range(self.model.vector_size)],
-        #                      index=[w])) if vector is not None else titles_df
-        #
-        # newly_added = {}
-        # for i, w in enumerate(not_sorted.union(list(self.graph.not_in_graph))):
-        #     sim_comp_new_df = pd.DataFrame(columns=["sim_name", "sim_vals"])
-        #     vector = self.model.get_vector(w)
-        #     if vector is None:
-        #         continue
-        #     for t, row in titles_df.iterrows():
-        #         sim = cs([row], [vector])
-        #         sim_val = cs([title_mean_df.loc[t].values], [vector])
-        #         sim_comp_new_df = sim_comp_new_df.append(pd.DataFrame({"sim_name": sim[0][0], "sim_vals": sim_val[0][0]},
-        #                                                               index=[t]))
-        #     # TODO is this eefective?
-        #     if np.max(sim_comp_new_df["sim_name"].values) >= 0.5:
-        #         best_val = sim_comp_new_df["sim_name"].idxmax()
-        #         if best_val not in newly_added:
-        #             newly_added[best_val] = set()
-        #         newly_added[best_val].add(w)
-        #     elif np.max(sim_comp_new_df["sim_vals"].values) >= 0.5:
-        #         best_val = sim_comp_new_df["sim_vals"].idxmax()
-        #         if best_val not in newly_added:
-        #             newly_added[best_val] = set()
-        #         newly_added[best_val].add(w)
-        #
-        # final_entities = {k: v.split(", ") + list(newly_added[k]) if k in newly_added else v.split(", ")
-        #                   for k, v in best_reprs_body[WORDS].items()}
-        return result_dict
+        return result_dict, outliers
