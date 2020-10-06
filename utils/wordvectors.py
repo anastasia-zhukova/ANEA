@@ -1,16 +1,16 @@
-import gdown
+# import gdown
 from typing import List, Set
 import numpy as np
 from gensim.models.fasttext import load_facebook_model
 
 
-from pymagnitude import *
-from config import FASTTEXT_WE, ELMO_WE
-from sklearn.metrics.pairwise import cosine_similarity as cs
+# from pymagnitude import *
+from config import FASTTEXT_WE, ELMO_WE, FASTTEXT_PATH
+# from sklearn.metrics.pairwise import cosine_similarity as cs
 
 
 wordvectors = {
-    FASTTEXT_WE: "D:\\fasttext\\cc.de.300.bin",
+    FASTTEXT_WE: FASTTEXT_PATH,
     ELMO_WE: ""
 }
 
@@ -46,3 +46,15 @@ class WordEmbeddings:
 
     def get_vector(self, word: str):
         return self._model[word]
+
+
+model = None
+
+
+def get_model():
+    global model
+    if model is None:
+        model = WordEmbeddings()
+        return model
+    else:
+        return model

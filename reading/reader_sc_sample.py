@@ -6,12 +6,16 @@ from reading.reader import DocReader
 from config import DATA_PATH
 
 
-class SCSampleReader(DocReader):
-    """A reader of SC sample data."""
+class SCCSVReader(DocReader):
+    """A reader of SC selected data."""
     def _read_text(self) -> List[str]:
-        data_df = pd.read_csv(os.path.join(DATA_PATH, "sc_sample.csv"), index_col=[0])
-        return [v for v in list(data_df["Description"].values) if type(v) == str]
+        try:
+            data_df = pd.read_csv(os.path.join(DATA_PATH, "sc_sample.csv"), index_col=[0])
+            return [v for v in list(data_df["Description"].values) if type(v) == str]
+        except FileNotFoundError:
+            print("No file for \"Processing\" given. WIll be skipped. \n")
+            return []
 
 
 if __name__ == '__main__':
-    SCSampleReader()
+    SCCSVReader()

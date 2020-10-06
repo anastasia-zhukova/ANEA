@@ -5,6 +5,7 @@ import numpy as np
 import re
 from utils.CharSplit import char_split
 from utils.numberbatch import get_model
+from utils.get_wikt import get_page
 from config import MAX_COMPOUND_CANDS, MAX_REC_LEVEL, WIKTIONARY_PAGE
 import ftfy
 import requests
@@ -22,8 +23,10 @@ class Term:
         self.correct = self.word # correct(lemma)
         self.wikt_page = None
         self.conceptnet_page = None
-        self.conceptnet_page_head, self.wikt_page_head = self._get_head(self.correct)
-        self.head = self.wikt_page_head.split("/")[-1].title() if self.wikt_page_head is not None else self.word
+        self.head = None
+        self.conceptnet_page_head, (self.wikt_page_head, self.head) = self._get_head(self.correct)
+        # self.head = self.wikt_page_head.split("/")[-1].title() if self.wikt_page_head is not None else self.word
+        self.head = self.head.title() if self.head is not None else self.word
         self.concept = None
 
     def __str__(self):
@@ -35,8 +38,8 @@ class Term:
     def _get_head(self, orig_word):
         heads = self._compound_splitter(orig_word, 1)
         if len(heads):
-            return heads[0][0], self._check_url(heads[0][1])
-        return None, None
+            return heads[0][0], self._check_url(heads[0][1]) if heads[0][2] is None else (heads[0][1], heads[0][2])
+        return None, (None, None)
 
     @staticmethod
     def _convert_format(word, lang='de'):
@@ -54,11 +57,11 @@ class Term:
         cn_origword = Term._convert_format(orig_lemma)
         if cn_origword in self.model:
             self.conceptnet_page = cn_origword if rec_level == 1 else self.conceptnet_page
-            page = requests.get(WIKTIONARY_PAGE.format(orig_lemma.capitalize()))
+            page = get_page(orig_lemma.capitalize())
             if page.status_code == 200:
-                self.wikt_page = self._check_url(WIKTIONARY_PAGE.format(orig_lemma.capitalize())) \
-                                    if rec_level == 1 else self.wikt_page
-                return [(self.conceptnet_page, self.wikt_page)]
+                if rec_level == 1:
+                    self.wikt_page, self.head = self._check_url(WIKTIONARY_PAGE.format(orig_lemma.capitalize()))
+                return [(self.conceptnet_page, self.wikt_page, self.head)]
 
         if any([l in string.punctuation for l in orig_lemma]):
             # split at any non-letter character
@@ -86,13 +89,13 @@ class Term:
 
             try:
                 found_word = False
-                for head_modified in [Term._convert_format(potential_head), Term._convert_format(potential_head, "en"),
-                                      Term._convert_format(potential_head.replace("ß", "ss")),
-                                      Term._convert_format(potential_head)[:-1]]:
-                    if head_modified in self.model:
-                        page = requests.get(WIKTIONARY_PAGE.format(potential_head.capitalize()))
+                for  head_modified in [potential_head, potential_head.replace("ß", "ss"),
+                                      potential_head[:-1]]:
+                    head_modified_numberb = Term._convert_format(head_modified)
+                    if head_modified_numberb in self.model:
+                        page = get_page(potential_head.capitalize())
                         if page.status_code == 200:
-                            head_candidates.append((head_modified, WIKTIONARY_PAGE.format(potential_head.capitalize())))
+                            head_candidates.append((head_modified_numberb, WIKTIONARY_PAGE.format(potential_head.capitalize()), head_modified))
                             found_word = True
                             break
 
@@ -120,16 +123,32 @@ class Term:
     def _check_url(self, url):
         # check is there is a normalized form of a word available
         if url is None:
-            return None
+            return None, None
 
-        page = requests.get(url)
+        # page = requests.get(url)
+        page = get_page(url)
         soup = BeautifulSoup(page.content, "html.parser")
         orig_forms = [s for s in soup.find_all(title="Grammatische Merkmale")]
         if len(orig_forms) == 0:
-            return url
+            return url, url.split("/")[-1]
+
+        if "#" in url:
+            return url, url.split("/")[-1].split("#")[0]
 
         try:
-            orig_form = [s for s in soup.find_all("li")][0]
-            return "/".join(url.split("/")[:-2]) + list(orig_form.find_all("a"))[0].attrs["href"]
+            cand = None
+            for orig_form in [s for s in soup.find_all("li")]:
+                for cand in list(orig_form.find_all("a")):
+                    if ":" in cand.attrs["href"]:
+                        continue
+
+                    if "#" in cand.attrs["href"]:
+                        return url + cand.attrs["href"], url.split("/")[-1]
+
+                    return "/".join(url.split("/")[:-2]) + cand.attrs["href"], cand.attrs["title"]
+
+            if cand is None:
+                return url, url.split("/")[-1]
+
         except IndexError:
-            return url
+            return url, url.split("/")[-1]

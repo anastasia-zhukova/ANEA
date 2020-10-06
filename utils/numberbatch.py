@@ -1,12 +1,16 @@
-from pymagnitude import Magnitude
-from config import NUMBERBATCH_PATH, NUMBERBATCH
+# from pymagnitude import Magnitude
+import json
+from config import NUMBERBATCH_VOC_PATH, NUMBERBATCH
 
 _model = {}
 
 
 def get_model():
     if NUMBERBATCH not in _model:
-        _model[NUMBERBATCH] = Magnitude(NUMBERBATCH_PATH)
+        with open(NUMBERBATCH_VOC_PATH, "r") as file:
+            _model[NUMBERBATCH] = json.load(file)
+
+        a = 1
     return _model[NUMBERBATCH]
 
 

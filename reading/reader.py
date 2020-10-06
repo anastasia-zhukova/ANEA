@@ -8,6 +8,7 @@ class DocReader:
     def __init__(self):
         self.text_collection = self._read_text()
 
+
     def _read_text(self) -> List[str]:
         """
 

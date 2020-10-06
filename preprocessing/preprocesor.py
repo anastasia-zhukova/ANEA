@@ -3,9 +3,9 @@ import ftfy
 from typing import List
 import re
 from config import DOC_LIM
-from utils.numberbatch import del_model
 from preprocessing.term import Term
 from utils.parser import nlp
+import string
 
 # -------------
 POS = ["NOUN", "PROPN"]
@@ -19,9 +19,10 @@ class Preprocessor:
 
     def preprocess(self, orig_texts: List[str]):
         annot_text = self._apply_spacy(orig_texts)
+        len_words = len([t for doc in annot_text for t in doc])
+        print("Total number of words in a text collection: " + str(len_words))
         terms = self._filter_terms(annot_text)
-        del_model()
-        return terms
+        return terms, len_words
 
     def _apply_spacy(self, orig_texts: List[str]):
         preprocessed_docs = []
@@ -60,13 +61,22 @@ class Preprocessor:
                     continue
 
                 if len(re.findall(r'\d', t.orth_)):
+                    # ignore if there is a digit
                     continue
 
-                if t.orth_ not in term_dict:
-                    term = Term(word=t.orth_, token=t)
-                    term_dict[t.orth_.capitalize()] = term
+                if len(re.findall(r'#|:', t.orth_)):
+                    # ignore if there is "#" or ":"
+                    continue
+
+                word = t.orth_[1:].capitalize() if t.orth_[0] in string.punctuation else t.orth_
+                word = word.split(";")[-1].capitalize() if len(word.split(";")) > 1 else word
+
+                if word not in term_dict:
+                    # term = Term(word=word, token=t)
+                    term = Term(word=word, token=None)
+                    term_dict[word.capitalize()] = term
                 else:
-                    term_dict[t.orth_].increase_counter()
+                    term_dict[word.capitalize()].increase_counter()
             bar.update(i)
         bar.finish()
         return term_dict
