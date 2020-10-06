@@ -1,6 +1,7 @@
 # Ignore
 .venv
 venv/
+.idea
 
 # User-specific stuff
 .idea/**/workspace.xml
