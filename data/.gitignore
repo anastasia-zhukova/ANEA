@@ -1,4 +1,5 @@
 # Ignore everything in this directory
-*
+sc_data_short.csv
+sc_sample.csv
 # Except this file
 !.gitignore

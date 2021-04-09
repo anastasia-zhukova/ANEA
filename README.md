@@ -5,7 +5,7 @@ Code for Automatic (Named) Entity Annotation. Not for public distribution!
 Python 3.7 
 Required approx. 4Gb of hard memory. 
 
-Download "numberbatch_voc.txt" from (anonymized repo) https://drive.google.com/drive/folders/1UM7iRIYVoTgrwpRc-4QBBQJM14n-BZeg?usp=sharing
+Download "numberbatch_voc.txt" from (anonymized repo) https://drive.google.com/file/d/1Ag3gQUBtmqB-WAGXk67nJwUvMiZ1DdQG/view?usp=sharing
 and place to
 ```
 resources/numberbatch
