@@ -24,8 +24,8 @@ FASTTEXT_FOLDER = os.path.join(RESOURCE_PATH, FASTTEXT_WE)
 FASTTEXT_PATH = os.path.join(FASTTEXT_FOLDER, "cc.de.300.bin")
 
 if "cc.de.300.bin" not in os.listdir(FASTTEXT_FOLDER):
-    FASTTEXT_PATH = "C:\\Users\\annaz\\PycharmProjects\\DL_data_representation\\cc.de.300.bin\\cc.de.300.bin"
-#     gdown.download("https://dl.fbaipublicfiles.com/fasttext/vectors-crawl/cc.de.300.bin.gz", FASTTEXT_PATH, quiet=False)
+    # FASTTEXT_PATH = "C:\\Users\\annaz\\PycharmProjects\\DL_data_representation\\cc.de.300.bin\\cc.de.300.bin"
+    gdown.download("https://dl.fbaipublicfiles.com/fasttext/vectors-crawl/cc.de.300.bin.gz", FASTTEXT_PATH, quiet=False)
 
 NUMBERBATCH = "numberbatch"
 NUMBERBATCH_VOC_PATH = os.path.join(RESOURCE_PATH, NUMBERBATCH, "numberbatch_voc.txt")
