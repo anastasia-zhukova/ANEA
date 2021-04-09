@@ -6,11 +6,10 @@ nltk.download('punkt')
 from textblob_de import TextBlobDE
 import requests
 from typing import List
-import string
 wiki.set_lang("de")
 
 from reading.reader import DocReader
-from config import DATA_PATH
+from config import DATA_PATH, logger
 
 WIKI_LINK = "https://de.wikipedia.org/w/index.php?title=Spezial:Suche&limit=100&offset=0&ns0=1&search=incategory%3A{0}&ns0=1"
 MAX_LEN = 7000
@@ -29,7 +28,7 @@ class WikiReader(DocReader):
             super().__init__()
 
     def _read_text(self) -> List[str]:
-        print("Data for " + self.topic)
+        logger.info("Data for " + self.topic)
         data_file_path = os.path.join(DATA_PATH, self.topic + ".json")
         if os.path.exists(data_file_path):
             with open(data_file_path, "r", encoding='utf8') as file:
@@ -57,7 +56,7 @@ class WikiReader(DocReader):
                 records.append(page.content)
                 length_ += len(blob.tokens)
             except wiki.exceptions.PageError:
-                print(res.text)
+                logger.info(res.text)
                 continue
         with open(data_file_path, "w", encoding='utf8') as file:
             json.dump(records, file)

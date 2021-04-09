@@ -11,13 +11,16 @@ and place to
 resources/numberbatch
 ```
 
+You can either use your own data stored as a list of strings in a json file, or use a key-word for Wikipedia. 
+Place your file into ```data``` folder.
+
 Then execute
 ```
-pip3 install -r requirements.txt
+pip install -r requirements.txt
 ```
 ```
 python -m spacy download de_core_news_sm
 ```
 ```
-RUN_pipeline.py
+run_anea.py
 ```

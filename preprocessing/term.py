@@ -16,7 +16,6 @@ class Term:
 
     def __init__(self, word, token):
         self.id = shortuuid.uuid()
-        self.model = get_model()
         self.word = word.capitalize() if not word[0].isupper() else word
         self.token = token
         self.counter = 1
@@ -30,6 +29,9 @@ class Term:
         self.concept = None
 
     def __str__(self):
+        return self.word
+
+    def __repr__(self):
         return self.word
 
     def increase_counter(self):
@@ -55,7 +57,7 @@ class Term:
             return []
 
         cn_origword = Term._convert_format(orig_lemma)
-        if cn_origword in self.model:
+        if cn_origword in get_model():
             self.conceptnet_page = cn_origword if rec_level == 1 else self.conceptnet_page
             page = get_page(orig_lemma.capitalize())
             if page.status_code == 200:
@@ -92,7 +94,7 @@ class Term:
                 for  head_modified in [potential_head, potential_head.replace("ß", "ss"),
                                       potential_head[:-1]]:
                     head_modified_numberb = Term._convert_format(head_modified)
-                    if head_modified_numberb in self.model:
+                    if head_modified_numberb in get_model():
                         page = get_page(potential_head.capitalize())
                         if page.status_code == 200:
                             head_candidates.append((head_modified_numberb, WIKTIONARY_PAGE.format(potential_head.capitalize()), head_modified))

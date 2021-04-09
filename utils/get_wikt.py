@@ -1,5 +1,5 @@
 import requests
-from config import WIKTIONARY_PAGE
+from config import WIKTIONARY_PAGE, logger
 import time
 import ftfy
 
@@ -18,6 +18,6 @@ def get_page(term):
                 wikt_dict[term_.capitalize()] = requests.get(WIKTIONARY_PAGE.format(term_.capitalize()))
                 try_again = False
             except requests.exceptions.SSLError:
-                print("Needed to wait for the \"{}\" page.".format(ftfy.fix_text(term_.capitalize())))
+                logger.warning("Needed to wait for the \"{}\" page.".format(ftfy.fix_text(term_.capitalize())))
                 time.sleep(15)
     return wikt_dict[term_.capitalize()]

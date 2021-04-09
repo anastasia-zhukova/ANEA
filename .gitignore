@@ -2,6 +2,7 @@
 .venv
 venv/
 .idea
+__pycache__/
 
 # User-specific stuff
 .idea/**/workspace.xml

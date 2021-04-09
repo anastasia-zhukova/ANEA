@@ -10,7 +10,6 @@ def get_model():
         with open(NUMBERBATCH_VOC_PATH, "r") as file:
             _model[NUMBERBATCH] = json.load(file)
 
-        a = 1
     return _model[NUMBERBATCH]
 
 

@@ -14,3 +14,4 @@ progressbar2>=3.53.1
 nltk>=3.5
 textblob-de>=0.4.3
 gdown>=3.12.2
+HanTa>=0.2.0

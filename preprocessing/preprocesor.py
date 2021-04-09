@@ -2,25 +2,27 @@ import progressbar
 import ftfy
 from typing import List
 import re
-from config import DOC_LIM
+from config import DOC_LIM, logger
 from preprocessing.term import Term
 from utils.parser import nlp
 import string
+from HanTa import HanoverTagger as ht
 
 # -------------
 POS = ["NOUN", "PROPN"]
-# -------------
+# ------------
 
 
 class Preprocessor:
 
     def __init__(self):
         self.word_dict = {}
+        self.tagger = ht.HanoverTagger('morphmodel_ger.pgz')
 
     def preprocess(self, orig_texts: List[str]):
         annot_text = self._apply_spacy(orig_texts)
         len_words = len([t for doc in annot_text for t in doc])
-        print("Total number of words in a text collection: " + str(len_words))
+        logger.info("Total number of words in a text collection: " + str(len_words))
         terms = self._filter_terms(annot_text)
         return terms, len_words
 
@@ -70,13 +72,15 @@ class Preprocessor:
 
                 word = t.orth_[1:].capitalize() if t.orth_[0] in string.punctuation else t.orth_
                 word = word.split(";")[-1].capitalize() if len(word.split(";")) > 1 else word
+                tags = self.tagger.tag_sent([word])
+                lemma = tags[0][1]
 
-                if word not in term_dict:
+                if lemma not in term_dict:
                     # term = Term(word=word, token=t)
-                    term = Term(word=word, token=None)
-                    term_dict[word.capitalize()] = term
+                    term = Term(word=lemma, token=None)
+                    term_dict[lemma.capitalize()] = term
                 else:
-                    term_dict[word.capitalize()].increase_counter()
+                    term_dict[lemma.capitalize()].increase_counter()
             bar.update(i)
         bar.finish()
         return term_dict
