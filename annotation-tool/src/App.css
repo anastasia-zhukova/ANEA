@@ -1,0 +1,74 @@
+
+body{
+  margin: 0;
+  box-sizing: border-box;
+  padding: 0;
+}
+
+.App {
+  text-align: center;
+}
+
+
+/* Navbar styles */
+/*
+.nav{
+  background-color: black;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+}
+.navItems{
+  color: #000;
+  list-style-type: none;
+}
+.navItems li {
+  display: inline-block;
+  margin: 0 5px;
+  text-transform: uppercase;
+  padding: 5px;
+}
+
+.menuBtn{
+  display: none;
+  font-size: 30px;
+  cursor: pointer;
+}
+.brand{
+  margin: 6px;
+  cursor: pointer;
+}
+@media(max-width: 800px){
+  .navItems{
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      right: 0;
+      left: 0;
+      z-index: 10;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: #000;
+      transition: top 1s ease;
+      display: none;
+  }
+  nav .mainMenu .closeMenu {
+      display: block;
+      position: absolute;
+      top: 20px;
+      right: 20px;
+
+  }
+  .menuBtn {
+      display: block;
+      font-size: 40px;
+      margin: 10px;
+  }
+  nav .mainMenu li a:hover {
+      background: none;
+      color: rgb(255, 123, 0);
+      font-size: 1.6rem;
+  }
+
+} */

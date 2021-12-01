@@ -1,0 +1,26 @@
+
+
+section{
+    height: 100vh;
+    margin-top: 50px;
+    padding: 20px 0;
+    display: flex;
+    justify-content: space-between;
+
+}
+.welcomeSec p{
+    color: red;
+   
+}
+
+.welcomeSec div {
+    width: 40%;
+    padding: 50px 20px;
+    margin-left: 30px;
+}
+.welcomeSec img {
+    margin-right: 30px;
+    margin-top: 20px;
+    width: 40%;
+    height: 80vh;
+}
