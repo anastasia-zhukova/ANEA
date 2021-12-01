@@ -125,7 +125,7 @@ def run():
 
         logger.info("ANEA execution.\n")
         anea = ANEAAnnotator(graph=graph, topic=topic, date=date_)
-        labels_anea, outliers_anea = anea.extract_labels()
+        labels_anea, outliers_anea = anea.extract_labels()  
         exec_results_dict[i] = {k.strip(): [v.strip() for v in vv] for k, vv in labels_anea.items()}
 
     classes_dict = _combine_results(exec_results_dict)

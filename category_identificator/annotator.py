@@ -12,19 +12,22 @@ class Annotator:
         self.params = {}
         self.terms_to_annotate = None
         self.cluster_all = False
+        self.prelim_groups = None
         if type(date) != str:
             now = datetime.datetime.now()
             self.date = now.strftime("%Y-%m-%d")
         else:
             self.date = date
 
-    def extract_labels(self, terms_to_annotate=None, cluster_all: bool = False) -> (Dict[str, List[str]], List[str]):
+    def extract_labels(self, terms_to_annotate=None, cluster_all: bool = False, prelim_groups: Dict[str, List[str]] = None) \
+            -> (Dict[str, List[str]], List[str]):
         '''
         Main execution method.
         :return: a dictionary <label: list of terms>, a list of outliers, i.e., non-resolved terms
         '''
         self.terms_to_annotate = terms_to_annotate
         self.cluster_all = cluster_all
+        self.prelim_groups = prelim_groups
         label_dict, outliers = self._extract_labels()
         name = self.__class__.__name__
         now = datetime.datetime.now()

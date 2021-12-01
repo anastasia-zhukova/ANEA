@@ -48,17 +48,23 @@ class ANEAAnnotator(Annotator):
         if self.terms_to_annotate is not None:
             label_dict_large = self.label_dict
         else:
-            label_dict_large = {k: v for k, v in self.label_dict.items() if len(v) >= MIN_WORDS}
+            if self.prelim_groups is None:
+                label_dict_large = {k: v for k, v in self.label_dict.items() if len(v) >= MIN_WORDS}
+            else:
+                label_dict_large = self.prelim_groups
 
         self._build_vector_df()
         init_table_long_df, init_table_no_dupl_df = self._build_init_table(label_dict_large)
 
         len_leaves = len([n for n, node in self.graph.all_nodes.items() if node.term_id is not None])
 
-        # initial filtering of the entity classes
-        init_table_filtered_df = init_table_no_dupl_df[init_table_no_dupl_df[MEAN_SIM] >= MIN_MEAN_SIM]
-        init_table_filtered_df = init_table_filtered_df[init_table_filtered_df[NAME_SIM] >= MIN_NAME_SIM]
-        init_table_filtered_df = init_table_filtered_df[init_table_filtered_df[SIZE] <= MAX_SIZE_PERC * len_leaves]
+        if self.prelim_groups is None:
+            # initial filtering of the entity classes
+            init_table_filtered_df = init_table_no_dupl_df[init_table_no_dupl_df[MEAN_SIM] >= MIN_MEAN_SIM]
+            init_table_filtered_df = init_table_filtered_df[init_table_filtered_df[NAME_SIM] >= MIN_NAME_SIM]
+            init_table_filtered_df = init_table_filtered_df[init_table_filtered_df[SIZE] <= MAX_SIZE_PERC * len_leaves]
+        else:
+            init_table_filtered_df = init_table_no_dupl_df
 
         # optimization of entity classes
         full_best_reprs_df = self._larger_reprs(init_table_filtered_df)
@@ -184,6 +190,7 @@ class ANEAAnnotator(Annotator):
 
         for k in list(label_dict_short):
             if k not in list(self.dist_df.columns):
+                label_dict_dist[k] = []
                 continue
             arr = []
             for w in label_dict_short[k]:

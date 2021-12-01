@@ -105,11 +105,11 @@ def count_datasets(date: str):
                     terms_df = eval_sheet_df.iloc[5:, :]
                     terms_df.columns = eval_sheet_df.iloc[0] if not np.isnan(np.sum(scores_labels)) else ["cl_"+str(j)
                                                                               for j in range(len(eval_sheet_df.columns))]
-                    terms = {col: [t.strip() for t in terms_df[col] if t is not np.nan and type(t) == str and len(t.strip())]
+                    label_terms = {col: [t.strip() for t in terms_df[col] if t is not np.nan and type(t) == str and len(t.strip())]
                              for col in list(terms_df.columns)}
-                    terms_groups_dict[topic][frac_type] = terms
+                    terms_groups_dict[topic][frac_type] = label_terms
 
-                    for k, (col, t_gr) in enumerate(terms.items()):
+                    for k, (col, t_gr) in enumerate(label_terms.items()):
                         t_gr = [v.strip() for v in t_gr if v in list(df_res_dict[topic][frac_type][VOCAB].index)]
 
                         for t in t_gr:
