@@ -1,16 +1,10 @@
 
 
-section{
-    height: 100vh;
-    margin-top: 50px;
-    padding: 20px 0;
-    display: flex;
-    justify-content: space-between;
 
-}
-.welcomeSec p{
-    color: red;
-   
+.welcomeSec{
+    height: 100vh;
+    display: flex;
+    justify-content: space-around;
 }
 
 .welcomeSec div {
@@ -20,7 +14,123 @@ section{
 }
 .welcomeSec img {
     margin-right: 30px;
-    margin-top: 20px;
+    margin-top: 80px;
     width: 40%;
     height: 80vh;
+}
+
+.titleHolder{
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: center;
+    margin:0;
+
+}
+.titleHolder h1{
+    margin-top: 30%;
+    font-size: 40px;
+    color: #00ab95;
+}
+.titleHolder p{
+    color: black;
+    font-weight: bold;
+    font-size: 20px;
+    text-align: center;
+   
+}
+.titleHolder button {
+    background: white;
+    width: 45%;
+    border: 2px solid #00ab95 ;
+    color: black;
+    font-size: 25px ;
+    border-radius: 25px;
+    margin-top: 50px;
+    padding: 5px 10px;
+}
+.titleHolder button:hover{
+    background-color: #00ab95;
+    color: white;
+}
+
+
+.featuresSec{
+    background-color: #00ab95;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    
+
+}
+
+
+.featuresCont {
+    
+    display: flex;
+    
+    justify-content: center;
+}
+.featuresSec h1 {
+    font-size: 50px;
+    padding:30px 0;
+    margin: 0;
+}
+.featureCard {
+    border: 1.5px solid black;
+    width: 25%;
+    margin: 20px;
+    background-color: #fff;
+    -webkit-box-shadow: 0px 0px 16px 1px #000000; 
+    box-shadow: 0px 0px 16px 1px #000000;    
+    border-radius: 0px;    
+       
+}
+.featureCard img{
+    width: 65%;
+    padding: 20px;
+    padding-top: 50px;
+    
+}
+.featureCard p {
+    color: black;
+    font-weight: bold;
+    padding: 5px 20px;
+    text-align: center;
+}
+
+
+@media screen and (max-width: 800px){
+    .welcomeSec img {
+        display: none;
+    }
+    .welcomeSec{
+        justify-content: center;
+        align-items: center;
+    }
+    .titleHolder {
+        width: auto !important;
+        margin: 0 !important;
+       
+    }
+    .titleHolder button {
+        padding: 5px 20px;
+        width: 50%;
+    }
+
+
+
+
+
+
+    .featuresCont {
+        flex-direction: column;
+        
+        justify-content: center;
+        align-items: center;
+    }
+    .featureCard {
+        width: auto;
+    }
+
 }

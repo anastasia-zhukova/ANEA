@@ -32,6 +32,7 @@ const Navbar = () => {
                 <li>Home</li>
                 <li>About</li>
                 <li>Contact Us</li>
+                <li onClick={toggleNav}></li>
             </ul>
             )}
             <TiThMenu className="menuBtn" onClick={toggleNav} />
