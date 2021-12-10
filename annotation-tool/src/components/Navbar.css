@@ -49,6 +49,10 @@ nav {
     font-weight: bold;
 
 }
+.navItems li:hover {
+    color: #00ab95;
+   
+}
 .navItems li:nth-child(4) {
     display: none;
 }

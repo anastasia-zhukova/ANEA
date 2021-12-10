@@ -1,0 +1,39 @@
+
+
+.body-container {
+    margin-top: 120px;
+    align-items: center;
+    
+}
+.inputs-container {
+    margin: 75px 0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    height: 50vh;
+    
+}
+
+.inputs-container label {
+    cursor: pointer;
+    padding: 20px 30px;
+    font-size: 30px;
+    background-color: #00ab95;
+    color: white;
+    font-weight: bold;
+    width: 17%;
+
+}
+.inputs-container label:nth-child(2) {
+     border-radius: 7px 0 0 7px;
+     border-right: 1px solid white;
+  
+}
+.inputs-container label:nth-child(4) {
+    border-radius: 0 7px  7px 0;
+    border-left: 1px solid white;
+
+}
+.inputs-container input {
+    display: none;
+}
