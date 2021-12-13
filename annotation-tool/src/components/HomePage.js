@@ -7,7 +7,7 @@ import docAnnot from '../assets/docAnnot.png'
 import './HomePage.css'
 
 import React from 'react'
-//import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 const HomePage = () => {
     return (
@@ -18,7 +18,9 @@ const HomePage = () => {
                 <div className="titleHolder">
                     <h1 >The tool to train your datasets</h1>
                     <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam. </p>
-                    <button>Get started</button>
+                    <Link to='/app' className='startLink'>
+                        <button>Get started</button>
+                    </Link>
                     
                 </div>
                 <img src={datasetPic} alt="dataset"/>    

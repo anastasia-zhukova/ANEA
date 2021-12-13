@@ -41,13 +41,16 @@
 }
 .titleHolder button {
     background: white;
-    width: 45%;
+    width: 100%;
     border: 2px solid #00ab95 ;
     color: black;
     font-size: 25px ;
     border-radius: 25px;
     margin-top: 50px;
     padding: 5px 10px;
+}
+.startLink {
+    width: 45%;
 }
 .titleHolder button:hover{
     background-color: #00ab95;
@@ -115,6 +118,9 @@
     }
     .titleHolder button {
         padding: 5px 20px;
+        width: 100%;
+    }
+    .startLink {
         width: 50%;
     }
 
