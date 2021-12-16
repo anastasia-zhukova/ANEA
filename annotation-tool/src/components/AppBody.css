@@ -1,4 +1,11 @@
 
+.temp-btn{
+    margin-bottom: 20px;
+    padding: 12px 30px;
+}
+table{
+    width: 80%;
+}
 
 .body-container {
     margin-top: 120px;
