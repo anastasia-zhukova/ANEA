@@ -1,12 +1,14 @@
 import React from 'react'
 
+import './TRow.css'
 
 
-
-const TRow = ({row}) => {
+const TRow = ({count, row}) => {
+   
     return (
 
         <tr>
+            <td>{count++}</td>
             {
             row.map((td) => (
                 <td >{td} </td>

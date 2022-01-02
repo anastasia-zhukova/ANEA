@@ -1,9 +1,12 @@
 
-import './AppBody.css'
-import React, { useState ,useEffect} from 'react'
+import './AppBody.css';
+import React, { useState ,useEffect} from 'react';
 import TRow from './TRow';
-//import { useState } from 'react';
+import { AiFillDelete } from 'react-icons/ai';
+import {MdOutlineAddBox} from 'react-icons/md'
 
+//import { useState } from 'react';
+    
 
 
 
@@ -36,6 +39,9 @@ const AppBody = ({datasets, setData}) => {
     const [docSelected, setDocSelected] = useState(false);
     const [headers, setHeaders] = useState([]);
     const [tableData, setTableData] = useState([]);
+    var count =1;
+
+
 
     const getHeader =(datasets) => {
 
@@ -44,7 +50,7 @@ const AppBody = ({datasets, setData}) => {
         var map = datasets.map((td) => Object.entries(td));
             //console.log(Array.isArray(map));
         //}
-        console.log(datasets.length);
+        //console.log(datasets.length);
         if(map.length)
             map[0].forEach(row => {
                 
@@ -61,38 +67,46 @@ const AppBody = ({datasets, setData}) => {
     }
     const getRows = (datasets) => {
         let data = [];
-        let row = [];
             var map = datasets.map((td) => Object.entries(td));
-            console.log(map);
+            
             let array = map[0];
-           // console.log(array);
-           //TODO we need to check which column is longer 
-           //TODO we don't get all the data cz we use vertical length 
-           //TODO improuuuve this function 
-            for (let i = 0; i < array.length; i++) {
-                for (let j = 0; j < array[i][1].length; j++) {
-                    //console.log(array[j]?.[1]?.[i])
-                    row.push(array[j]?.[1]?.[i])
+
+            var labelValues = array.map(row=> (row[1]));
+            var maxArray= labelValues[0].length;
+            console.log(maxArray);
+            var k=0
+            for (let i = 0; i < labelValues.length; i++) {
+                if (labelValues[i].length > maxArray) {
+                    maxArray = labelValues[i].length;
+                    k=i;
                 }
-                //console.log("\n");
-                data.push(row);
-                row=[]
+                
             }
-    
-    
-            console.log(data)
+            data = labelValues[k].map((_, colIndex) => labelValues.map(row => row[colIndex]));
+     
+            //console.log(data)
             setTableData(data);
     }
+
+
     const  populateData =  (e)=> {
         getData(e)
             .then(setData(filesData))
             .then(setDocSelected(true) );
             
     }
-    useEffect(() => {
-        //console.log(datasets[0]);
 
-        //console.log(datasets);
+    const delCategory = (id) => {
+        //TODO what ure righting is not working 
+        //assumption: edit the datasets variables then everything will be rerendered 
+        //
+        console.log(tableData);
+        var k = [...tableData];
+        k.pop(id);
+        console.log(k);
+    }
+    useEffect(() => {
+
         getHeader(datasets);
   
     },[datasets]);
@@ -123,24 +137,41 @@ const AppBody = ({datasets, setData}) => {
         return(
             <div className='body-container'>
                 <button onClick={() => {getHeader(datasets); getRows(datasets); }} className='temp-btn'>Show dataset</button>
-
-                <table>
-                    <thead>
-                        <tr>
+                <div className='tableContainer'>
+                    <table >
+                        <thead>
+                            <tr>
+                                <th>--</th>
+                                {
+                                    headers.map((head)=><th key={head.id }>{head.hName}<AiFillDelete id={head.id} className='delIcon' onClick={() => delCategory(head.id)}/> </th>)
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr className='addContainer'>
+                                <td>--</td>
+                                {
+                                    headers.map((_) => {
+                                        return(
+                                            <td>
+                                                <input type="text"   />
+                                                <MdOutlineAddBox className='addIcon'/>
+                                            </td>
+                                        )
+                                    })
+                                }
+                            </tr>
                             {
-                                headers.map((head)=><th key={head.id }>{head.hName}<button>Del</button></th>)
+                                
+                                tableData.map((row)=>(<TRow count = {count++} row ={row} />))
                             }
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {
-                            tableData.map((row)=>(<TRow row ={row} />))
-                        }
-                 
-                    </tbody>
-                </table>
+                    
+                        </tbody>
+                    </table>
+                </div>
             </div>
         )
 }
+
 
 export default AppBody
