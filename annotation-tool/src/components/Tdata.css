@@ -1,0 +1,30 @@
+
+.valueContainer{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.tdValue{
+    font-size: 15px;
+    overflow:hidden;
+    flex: 2;
+    margin: 0;
+    font-weight: unset;
+}
+.editIcon{
+    color: #00ab95;
+    cursor: pointer;
+    font-size: 20px; 
+    margin: 0 5px; 
+}
+
+.closeIcon{
+    cursor: pointer;
+    color: #00ab95 !important;
+    font-size: 27px; 
+    margin: 0 3px;
+}
+
+.closeIcon:hover{
+    color: red !important;
+}

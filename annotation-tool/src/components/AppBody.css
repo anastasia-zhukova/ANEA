@@ -1,4 +1,11 @@
 
+html{
+    
+    scroll-behavior: smooth;
+
+}
+
+
 .temp-btn{
     margin-bottom: 20px;
     padding: 12px 30px;
@@ -14,7 +21,10 @@
     box-shadow: 0px 0px 14px 0px rgba(0,0,0,0.61);
     
 }
-
+.addCatBtn{
+    font-size: 30px;
+    vertical-align: bottom;
+}
 table {     
     border-collapse: collapse;
     border-spacing: 0;
@@ -95,7 +105,7 @@ tbody tr:nth-child(odd){
 
 
 .addContainer input{
-    width: 70px;
+  
     font-weight: bold;
 }
 
@@ -104,4 +114,7 @@ tbody tr:nth-child(odd){
     vertical-align: bottom;
     color:#00ab95;
     cursor: pointer;
+}
+th .addIcon{
+    color: white;
 }

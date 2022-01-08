@@ -1,43 +1,8 @@
 
-import './AppBody.css';
-import React, { useState ,useEffect, useRef} from 'react';
-import TRow from './TRow';
-import { AiFillDelete } from 'react-icons/ai';
-import {MdOutlineAddBox} from 'react-icons/md'
-import Tdata from './Tdata';
-//import  { useRef } from 'react'
-
-//import { useState } from 'react';
-    
 
 
 
-
-
-var filesData = [];
-
-const getData = async(e) => {
-    let files = e.target.files;
-    filesData.splice(0, filesData.length)
-
-    for (let i = 0; i < files.length; i++) {
-
-        let fr = new FileReader();
-        fr.readAsText(files[i]);
-        fr.onload =   () => {
-            let fileContent = fr.result;
-        
-            filesData.push(JSON.parse(fileContent));
-        }        
-    }
-}
-
-
-
-
-
-
-const AppBody = () => {
+const GridView = () => {
     const [docSelected, setDocSelected] = useState(false);
     const [headers, setHeaders] = useState([]);
     const [tableData, setTableData] = useState([]);
@@ -199,6 +164,7 @@ const AppBody = () => {
     else
         return(
             <div className='body-container'>
+                <Test/>
                 <button onClick={() => {getHeader(datasets); getRows(datasets); }} className='temp-btn'>Show dataset</button>
                 <div className='tableContainer' ref={tableRef}>
                     <table >
@@ -243,4 +209,4 @@ const AppBody = () => {
 }
 
 
-export default AppBody
+export default GridView

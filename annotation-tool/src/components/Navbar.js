@@ -1,6 +1,8 @@
 
 import { TiThMenu } from 'react-icons/ti'
 import {useState, useEffect} from 'react'
+import { Link } from 'react-router-dom'
+
 import './Navbar.css'
 const Navbar = () => {
 
@@ -29,7 +31,7 @@ const Navbar = () => {
             
             {(toggleMenu || screenWidth > 800) && ( 
             <ul  className="navItems">
-                <li>Home</li>
+                <Link to='/' style={{textDecoration:'none'}}><li>Home</li></Link>
                 <li>About</li>
                 <li>Contact Us</li>
                 <li onClick={toggleNav}></li>

@@ -1,8 +1,6 @@
 
 import './App.css';
 import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
-import { useState } from 'react';
-//import { useStateWithCallbackLazy } from 'use-state-with-callback';
 
 import Navbar from './components/Navbar';
 import HomePage from './components/HomePage';
@@ -11,18 +9,18 @@ import AppBody from './components/AppBody';
 
 
 function App() {
-  const [datasets, setDatasets] = useState([]); 
   //const [test, setTest] = useStateWithCallbackLazy(0);
 
   
   return (
     <div className="App">
-      <Navbar/>
 
       <Router>
+        <Navbar/>
+
         <Routes>
             <Route path="/" element= {<HomePage/>} />
-            <Route path="/app" element= {<AppBody datasets={datasets} setData={setDatasets} />} />
+            <Route path="/app" element= {<AppBody  />} />
             <Route path="*" element={<Nomatch/>}/>
         </Routes>
 
