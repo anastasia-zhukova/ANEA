@@ -1,13 +1,19 @@
+import './GridView.css';
+import React, { useState ,useEffect, useRef} from 'react';
+import TRow from './TRow';
+import { AiFillDelete } from 'react-icons/ai';
+import {MdOutlineAddBox} from 'react-icons/md'
+import Tdata from './Tdata';
 
 
 
 
-const GridView = () => {
-    const [docSelected, setDocSelected] = useState(false);
+
+
+const GridView = ({datasets, setDatasets}) => {
     const [headers, setHeaders] = useState([]);
     const [tableData, setTableData] = useState([]);
-    const [datasets, setDatasets] = useState([]); //TODO u may need to move this back to the App component
-
+     //TODO u may need to move this back to the App component
 
     let catInput = useRef();
     let tableRef = useRef();
@@ -49,7 +55,7 @@ const GridView = () => {
 
     }
     const getHeader =(datasets) => {
-
+        console.log(datasets);
         let headers = [];
         let id = 0;
         var map = datasets.map((td) => Object.entries(td));
@@ -94,12 +100,7 @@ const GridView = () => {
     }
 
 
-    const  populateData =  (e)=> {
-        getData(e)
-            .then(setDatasets(filesData))
-            .then(setDocSelected(true) );
-            
-    }
+
 
     const delCategory = (id) => {
         let keys = Object.keys( datasets[0])
@@ -137,35 +138,12 @@ const GridView = () => {
 
  
   
-    },[datasets]);
+     },[datasets]);
 
 
-    if (!docSelected) 
-        return (
-            <div className='body-container'>
-                <h1> To start please choose a document or a dataset</h1>
-                <div className='inputs-container'>
-                    <input type='file' multiple={false} id='doc-input' accept='.pdf, .doc, .docx'/>
-                    <label htmlFor='doc-input'>
-                        Select document 
-                    </label>
-
-                    <input type='file' multiple={true} id='data-input' accept='.json' onChange= {populateData} />
-                    <label htmlFor='data-input'>
-                        Select dataset
-                    </label>
-                    {/* <button onClick={()=> console.log(datasets)} >click me </button> */}
-                    
-                </div>
-        
-
-            </div>
-        )
-    else
         return(
             <div className='body-container'>
-                <Test/>
-                <button onClick={() => {getHeader(datasets); getRows(datasets); }} className='temp-btn'>Show dataset</button>
+                {/* <button onClick={() => {getHeader(datasets); getRows(datasets); }} className='temp-btn'>Show dataset</button> */}
                 <div className='tableContainer' ref={tableRef}>
                     <table >
                         <thead>

@@ -1,11 +1,15 @@
 
 import './AppBody.css';
-import React, { useState ,useEffect, useRef} from 'react';
-import TRow from './TRow';
-import { AiFillDelete } from 'react-icons/ai';
-import {MdOutlineAddBox} from 'react-icons/md'
-import Tdata from './Tdata';
-//import  { useRef } from 'react'
+import React, { useState } from 'react';
+import GridView from './GridView';
+import { useEffect } from 'react/cjs/react.development';
+import { resolvePath } from 'react-router-dom';
+import DocView from './DocView';
+// import TRow from './TRow';
+// import { AiFillDelete } from 'react-icons/ai';
+// import {MdOutlineAddBox} from 'react-icons/md'
+// import Tdata from './Tdata';
+// //import  { useRef } from 'react'
 
 //import { useState } from 'react';
     
@@ -15,6 +19,7 @@ import Tdata from './Tdata';
 
 
 var filesData = [];
+var textsInFile = "";
 
 const getData = async(e) => {
     let files = e.target.files;
@@ -24,223 +29,143 @@ const getData = async(e) => {
 
         let fr = new FileReader();
         fr.readAsText(files[i]);
-        fr.onload =   () => {
+        fr.onload = () => {
             let fileContent = fr.result;
         
             filesData.push(JSON.parse(fileContent));
         }        
     }
+
 }
 
+const getText = (e) => {
+    return new Promise((resolve, reject)=>{
+        try{
+            let file = e.target.files[0];
+            let fr = new FileReader();
+            fr.readAsText(file);
+            fr.onload = () => {
+                //textsInFile = ;
 
+                textsInFile =  JSON.parse( fr.result);
+                resolve("ok")
+                //console.log(textsInFile);
+            }
+
+            
+        }catch(err){
+            //TODO handel with an exception 
+            reject(err);
+            
+
+        }
+
+    })
+
+
+
+    
+}
 
 
 
 
 const AppBody = () => {
-    const [docSelected, setDocSelected] = useState(false);
-    const [headers, setHeaders] = useState([]);
-    const [tableData, setTableData] = useState([]);
-    const [datasets, setDatasets] = useState([]); //TODO u may need to move this back to the App component
 
-
-    let catInput = useRef();
-    let tableRef = useRef();
-    var countRows =1;
-
-//////////////////////////////////Tdata functions ////////////////////////////////
-    const delTdata = (id, td) => {
-
-        let keys = Object.keys( datasets[0]);
-        let newData = datasets;
-        let index = newData[0][ keys[id]].indexOf(td);
-        newData[0][ keys[id]].splice(index, 1);
-
-        setDatasets([...newData]);
-        
-
-    }
-
-
-    const editData = (id, td, newVal) => {
-        let keys = Object.keys( datasets[0]);
-        let newData = datasets;
-        let index = newData[0][ keys[id]].indexOf(td);
-        newData[0][keys[id]][index] = newVal;
-        setDatasets([...newData]);
-    }
-//////////////////////////////////App data Functions ////////////////////////////
-    const addEntry = (catId, newValue) => {//////////////TODO empty field after adding
-
-        //newValue.trim();
-        if (newValue.trim().length === 0) return;
-        console.log(newValue);
-        let keys = Object.keys( datasets[0]);
-        let newData = datasets;
-        //console.log(newData[0][keys[catId]]);
-        newData[0][keys[catId]].push(newValue);
-        //console.log(newData)
-        setDatasets( [...newData]);
-
-    }
-    const getHeader =(datasets) => {
-
-        let headers = [];
-        let id = 0;
-        var map = datasets.map((td) => Object.entries(td));
-            //console.log(Array.isArray(map));
-        //}
-        //console.log(datasets.length);
-        if(map.length)
-            map[0].forEach(row => {
-                
-                headers = [...headers, {id:id++, hName: row[0]}];
-            });
-        // for (let i = 0; i < map[0].length; i++) {
-        //     headers = [...headers, map[0][i]];
-            
-            
-        // }    
-        //console.log(map);
-        setHeaders(headers);
-    
-    }
-    const getRows = (datasets) => {
-        let data = [];
-            var map = datasets.map((td) => Object.entries(td));
-            
-            let array = map[0];
-
-            var labelValues = array.map(row=> (row[1]));
-            var maxArray= labelValues[0].length;
-            //console.log(maxArray);
-            var k=0
-            for (let i = 0; i < labelValues.length; i++) {
-                if (labelValues[i].length > maxArray) {
-                    maxArray = labelValues[i].length;
-                    k=i;
-                }
-                
-            }
-            data = labelValues[k].map((_, colIndex) => labelValues.map(row => row[colIndex]));
-     
-            //console.log(data)
-            setTableData(data);
-    }
-
+    const [datasets, setDatasets] = useState([]);
+    const [texts, setTexts] = useState([]);
+    const [textSelected, setTextSelect] = useState(false);
+    const [docSelected, setdocSelect] = useState(false);
+    const [isGrid, setGrid] = useState(false);
 
     const  populateData =  (e)=> {
         getData(e)
             .then(setDatasets(filesData))
-            .then(setDocSelected(true) );
+            .then(setdocSelect(!docSelected));//setDocSelected(true) );
+            
             
     }
-
-    const delCategory = (id) => {
-        let keys = Object.keys( datasets[0])
-        if(window.confirm(`are you sure you want to delete the category: ${keys[id]}? `)){
-            let newData = datasets;
-            delete newData[0][keys[id]];
-            setDatasets([...newData]);
+    
+    const onchangeHandel = async  (e)=>{
+        try{
+            await getText(e);            
+            e.target.value = null;
+            setTexts(textsInFile);
+            setTextSelect(!textSelected)
+        }catch(err){
+            alert("something went wrong please check the file format!!")
         }
-    }
-
-    const  addCategory = () => {
-        let newData = datasets;
         
-        let catName = catInput.current.value.trim();
-        if (catName.length === 0) return;
+    };
+//ToDO
+// done with the grid view 
+// next work on the text annotation : see the notes writen : put the text into spans and then iterate over the datasets 
+// gd luck
 
-        newData[0][catName] = [];
-        setDatasets([...newData]);//TODO che
-        //console.log(newData);
-        catInput.current.value ="";
-        tableRef.current.scrollLeft = tableRef.current.scrollWidth;
-
-        //alert("Category added succesfuly :)")
-
-        
-        //console.log(catName);
-
-    }
-    useEffect(() => {
-        if(datasets.length){
-            getHeader(datasets);
-
-            getRows(datasets);
-        }
-
- 
-  
-    },[datasets]);
-
-
-    if (!docSelected) 
-        return (
-            <div className='body-container'>
-                <h1> To start please choose a document or a dataset</h1>
+    const returnItem = () => {
+        if (!textSelected) ////when the text file is selected 
+            return <>
+                <h1> To start please choose your document</h1>
                 <div className='inputs-container'>
-                    <input type='file' multiple={false} id='doc-input' accept='.pdf, .doc, .docx'/>
-                    <label htmlFor='doc-input'>
-                        Select document 
+                    <input type='file' multiple={false} id="doc-input" accept='.json' onChange={(e)=>{
+                        onchangeHandel(e); 
+                    }}/>
+                    <label htmlFor='doc-input' className='doc-lbl'>
+                        Select Text 
                     </label>
-
-                    <input type='file' multiple={true} id='data-input' accept='.json' onChange= {populateData} />
-                    <label htmlFor='data-input'>
-                        Select dataset
-                    </label>
-                    {/* <button onClick={()=> console.log(datasets)} >click me </button> */}
-                    
                 </div>
-        
+            </>
+        else{
+            if(docSelected)// when the dataset file is selected 
+                if(isGrid)
+                    return <>
+                        <GridView datasets={datasets} setDatasets={setDatasets}/>
+                        <div className="switch-cont">
+                            <button onClick={()=>(setGrid(!isGrid))} > Document view </button>
+                        </div>
+                    </>
+                else    
+                return <>
+                    <div className="docView-cont"  >
+                        <h1> Your texts: </h1>
+                        {
+                            texts.map((text, index)=>(<DocView key={index} id={index}  text={text} />))
+                        }
+                        
+                        <div className="switch-cont">
+                            <button onClick={()=>(setGrid(!isGrid))} > Grid view</button>
+                        </div>
+                    </div>
+                </>
+            else    // to give the user the choice to choose between an existing dataset or to annotate from scratch 
+                return <> 
+                    <h1>Do you have an existing Dataset or you want to annotate from scratch?</h1>
+                    <div className='inputs-container'>
+                        <input type='file' multiple={true} id="data-input" accept='.json'  onChange={populateData}/>
+                        <label className='annotate-lbl'  htmlFor='data-input'>
+                            Select dataset
+                        </label>
+                        <button className='annotate-btn'>Annotate from scratch</button>
+                    </div>
+                </>  
 
-            </div>
-        )
-    else
-        return(
-            <div className='body-container'>
-                <button onClick={() => {getHeader(datasets); getRows(datasets); }} className='temp-btn'>Show dataset</button>
-                <div className='tableContainer' ref={tableRef}>
-                    <table >
-                        <thead>
-                            <tr>
-                                <th>
-                                    <div className='valueContainer'>
-                                    <input type="text"  ref={catInput} />
-                                    <MdOutlineAddBox className='addIcon' onClick={addCategory}/>
-                                    </div>
-                                </th>
 
-                                {
-                                    headers.map((head)=><th key={head.id }>{head.hName}<AiFillDelete id={head.id} className='delIcon' onClick={() => delCategory(head.id)}/> </th>)
-                                }
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr className='addContainer'>
-                                <td>--</td>
-                                {
-                                    headers.map((_, index) => {
-                                        return(
-                                            
-                                               
-                                            <Tdata data =" " addEntry={addEntry} id={index} addCell ={true} key={index} />
-                                            
-                                        )
-                                    })
-                                }
-                            </tr>
-                            {
-                                
-                                tableData.map((row)=>(<TRow editData={editData} delTdata={delTdata} key = {countRows++} count= {countRows} row ={row} />))
-                            }
-                    
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        )
+        }
+      
+    }
+    // useEffect(()=>{
+    //     console.log(texts);
+    // },[texts]);
+    //console.log(texts);
+    return (
+
+        <div className='body-container'>
+            
+           {returnItem()} 
+
+
+        </div>
+    )
 }
-
 
 export default AppBody

@@ -1,0 +1,84 @@
+
+html{
+    
+    scroll-behavior: smooth;
+
+}
+
+
+.temp-btn{
+    margin-bottom: 20px;
+    padding: 12px 30px;
+}
+
+.tableContainer{
+    overflow-x: auto;
+    overflow-y: auto;
+    max-height: 800px;
+    width: 90%;
+    margin: auto;
+    -webkit-box-shadow: 0px 0px 14px 0px rgba(0,0,0,0.61); 
+    box-shadow: 0px 0px 14px 0px rgba(0,0,0,0.61);
+    margin-bottom: 30px;
+    
+}
+.addCatBtn{
+    font-size: 30px;
+    vertical-align: bottom;
+}
+table {     
+    border-collapse: collapse;
+    border-spacing: 0;
+    width: 100%;
+    table-layout: fixed;
+}
+
+thead th {
+    margin: 0 40px;
+    width: 200px ;
+    padding: 15px 10px;
+    font-size: 18px;
+    color:white;
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    z-index: 0;
+    background-color: #00ab95;
+
+
+}
+table td{
+    padding: 16px;
+}
+
+tbody tr:nth-child(odd){
+    background-color: #f2f2f2
+}
+.delIcon{
+    margin: 0 5px;
+    cursor: pointer;
+    font-size: 20px;
+    vertical-align: bottom;
+
+}
+.delIcon:hover{
+    color: red;
+}
+
+
+
+
+.addContainer input{
+  
+    font-weight: bold;
+}
+
+.addIcon {
+    font-size: 25px;
+    vertical-align: bottom;
+    color:#00ab95;
+    cursor: pointer;
+}
+th .addIcon{
+    color: white;
+}
