@@ -1,0 +1,40 @@
+
+
+.menu{
+    text-align: center;
+    display: flex;
+    width: 20%;
+    border-radius: 5px;
+    border: 1px solid #5d6066;
+    background-color: white;
+    /* position: absolute; */
+}
+h4{
+  margin: 0;
+}
+.main-menu{
+    width: auto;
+}
+.cat-list{
+    background: chartreuse;
+    text-align: center;
+    width: auto;
+    flex-grow:1 ;
+    position: absolute;
+    left: 545px;
+    top: 399px;
+    /* display: none; */
+}
+.menu-item{
+    font-size: 16px;
+    font-weight: normal;
+    padding: 5px;
+}
+.menu-item:hover{
+    background-color:#d0d3d9 ;
+}
+@media screen and (max-width: 800px){
+.menu{
+    width: 43%;
+}
+}

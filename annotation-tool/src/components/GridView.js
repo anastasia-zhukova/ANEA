@@ -43,14 +43,10 @@ const GridView = ({datasets, setDatasets}) => {
 //////////////////////////////////App data Functions ////////////////////////////
     const addEntry = (catId, newValue) => {//////////////TODO empty field after adding
 
-        //newValue.trim();
         if (newValue.trim().length === 0) return;
-        console.log(newValue);
         let keys = Object.keys( datasets[0]);
         let newData = datasets;
-        //console.log(newData[0][keys[catId]]);
         newData[0][keys[catId]].push(newValue);
-        //console.log(newData)
         setDatasets( [...newData]);
 
     }

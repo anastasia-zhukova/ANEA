@@ -2,9 +2,9 @@
 import './AppBody.css';
 import React, { useState } from 'react';
 import GridView from './GridView';
-import { useEffect } from 'react/cjs/react.development';
-import { resolvePath } from 'react-router-dom';
+
 import DocView from './DocView';
+import { useEffect } from 'react/cjs/react.development';
 // import TRow from './TRow';
 // import { AiFillDelete } from 'react-icons/ai';
 // import {MdOutlineAddBox} from 'react-icons/md'
@@ -12,31 +12,11 @@ import DocView from './DocView';
 // //import  { useRef } from 'react'
 
 //import { useState } from 'react';
-    
-
-
-
-
-
 var filesData = [];
 var textsInFile = "";
 
-const getData = async(e) => {
-    let files = e.target.files;
-    filesData.splice(0, filesData.length)
 
-    for (let i = 0; i < files.length; i++) {
 
-        let fr = new FileReader();
-        fr.readAsText(files[i]);
-        fr.onload = () => {
-            let fileContent = fr.result;
-        
-            filesData.push(JSON.parse(fileContent));
-        }        
-    }
-
-}
 
 const getText = (e) => {
     return new Promise((resolve, reject)=>{
@@ -67,21 +47,66 @@ const getText = (e) => {
     
 }
 
+const getData = (e) => {
+    return new Promise((resolve, reject)=>{
+
+        let files = e.target.files;
+        filesData.splice(0, filesData.length)
+        try{
+    
+        for (let i = 0; i < files.length; i++) {
+                let fr = new FileReader();
+                fr.readAsText(files[i]);
+                fr.onload = () => {
+                
+                    filesData.push(JSON.parse(fr.result));
+                    resolve('ok');
+
+                }  
+
+        }
+
+    }catch(err){
+        console.error(err);
+                reject(err);
+    }
+
+    })
+}
+
+
+
+
+
+
 
 
 
 const AppBody = () => {
 
+    document.addEventListener("click", (e)=> console.log(e))
     const [datasets, setDatasets] = useState([]);
     const [texts, setTexts] = useState([]);
     const [textSelected, setTextSelect] = useState(false);
     const [docSelected, setdocSelect] = useState(false);
     const [isGrid, setGrid] = useState(false);
+    const [CatColors, SetColors] = useState({});
+    // console.log(datasets);
 
-    const  populateData =  (e)=> {
-        getData(e)
-            .then(setDatasets(filesData))
-            .then(setdocSelect(!docSelected));//setDocSelected(true) );
+
+    
+    const  populateData = async (e)=> {
+        //try{
+            await getData(e);
+            await setDatasets(filesData);
+            setdocSelect(!docSelected);
+            generatColors();
+
+        // }catch(err){
+        //     console.error(err);
+        //     //alert("an error occured please check the file format")
+        // }
+        //setDocSelected(true) );
             
             
     }
@@ -94,13 +119,31 @@ const AppBody = () => {
             setTextSelect(!textSelected)
         }catch(err){
             alert("something went wrong please check the file format!!")
+            //console.log("hh")
         }
         
     };
-//ToDO
-// done with the grid view 
-// next work on the text annotation : see the notes writen : put the text into spans and then iterate over the datasets 
-// gd luck
+
+    function getRandomColor() {
+        var letters = '0123456789ABCDEF';
+        var color = '#';
+        for (var i = 0; i < 6; i++) {
+          color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+      }
+    const generatColors = ()=>{
+        
+        Object.keys(filesData[0]).map(cat=>{
+            let newColors = CatColors;
+            newColors[cat] = getRandomColor();
+
+            SetColors({...newColors});// u may need an await statement 
+        })
+    }
+
+
+
 
     const returnItem = () => {
         if (!textSelected) ////when the text file is selected 
@@ -129,7 +172,7 @@ const AppBody = () => {
                     <div className="docView-cont"  >
                         <h1> Your texts: </h1>
                         {
-                            texts.map((text, index)=>(<DocView key={index} id={index}  text={text} />))
+                            texts.map((text, index)=>(<DocView key={index} id={index} colors = {CatColors} datasets={datasets} texts = {texts} setTexts = {setTexts} />))
                         }
                         
                         <div className="switch-cont">
@@ -153,10 +196,8 @@ const AppBody = () => {
         }
       
     }
-    // useEffect(()=>{
-    //     console.log(texts);
-    // },[texts]);
-    //console.log(texts);
+
+   
     return (
 
         <div className='body-container'>
