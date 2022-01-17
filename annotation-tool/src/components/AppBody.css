@@ -57,9 +57,21 @@
 
 
 .docView-cont{
-    width: 90%;
+    width: 75%;
     margin: auto;
+    padding: 0 20px;
 }
+.cat-cont{
+    position: fixed;
+    left: 10px;
+    top: 200px;
+
+    border: 2px solid red;
+    width: 12.5%;
+
+}
+
+
 
 .switch-cont{
     width: 85%;

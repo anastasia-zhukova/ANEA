@@ -5,6 +5,8 @@ import GridView from './GridView';
 
 import DocView from './DocView';
 import { useEffect } from 'react/cjs/react.development';
+import Menu from './Menu';
+
 // import TRow from './TRow';
 // import { AiFillDelete } from 'react-icons/ai';
 // import {MdOutlineAddBox} from 'react-icons/md'
@@ -14,7 +16,6 @@ import { useEffect } from 'react/cjs/react.development';
 //import { useState } from 'react';
 var filesData = [];
 var textsInFile = "";
-
 
 
 
@@ -84,15 +85,20 @@ const getData = (e) => {
 
 const AppBody = () => {
 
-    document.addEventListener("click", (e)=> console.log(e))
+    
     const [datasets, setDatasets] = useState([]);
     const [texts, setTexts] = useState([]);
     const [textSelected, setTextSelect] = useState(false);
     const [docSelected, setdocSelect] = useState(false);
     const [isGrid, setGrid] = useState(false);
     const [CatColors, SetColors] = useState({});
+    const [del, setDel] = useState(false);
+    const [change, setChange] = useState(false);
+    const [add, setAdd] = useState(false);
+    const [selectedTxt, setText] = useState("");
+    const [currentTerm, setCrntTerm] =useState("");
+    const [currentCat, setCrntCat] = useState();
     // console.log(datasets);
-
 
     
     const  populateData = async (e)=> {
@@ -142,7 +148,21 @@ const AppBody = () => {
         })
     }
 
+    const getSelection = (e) => {
+        let selectedText = window.getSelection().toString().trim();
+        //var selRange = selectedText.getRangeAt(0);
+        if(selectedText){
+            setCrntTerm(selectedText)
+            setText(selectedText);
+            setAdd(true);
+            return;
+        }
+        setAdd(false);
+        
 
+        
+        //console.log()
+    }
 
 
     const returnItem = () => {
@@ -167,19 +187,45 @@ const AppBody = () => {
                             <button onClick={()=>(setGrid(!isGrid))} > Document view </button>
                         </div>
                     </>
-                else    
+                else  {  
+                  
                 return <>
                     <div className="docView-cont"  >
-                        <h1> Your texts: </h1>
-                        {
-                            texts.map((text, index)=>(<DocView key={index} id={index} colors = {CatColors} datasets={datasets} texts = {texts} setTexts = {setTexts} />))
-                        }
+                        <Menu  
+                            selectedTxt={selectedTxt} 
+                            datasets={datasets} 
+                            setDatasets={setDatasets} 
+                            del={del} change={change} add={add} 
+                            setAdd={setAdd} setChange={setChange} setDel={setDel}
+                            currentTerm= {currentTerm} 
+                            currentCat = {currentCat}   
+                        />
+
+                        <div className='cat-cont'>
+                            sdfdsf
+                        </div>
                         
-                        <div className="switch-cont">
-                            <button onClick={()=>(setGrid(!isGrid))} > Grid view</button>
+                        <div className='texts-cont'>
+                            <h1> Your texts: </h1>
+                            {
+                                texts.map((text, index)=>(<DocView key={index} id={index} 
+                                    setDel={setDel} del={del} 
+                                    setChange= {setChange}
+                                    getSelection={getSelection} colors = {CatColors} 
+                                    datasets={datasets} setDatasets={setDatasets} 
+                                    text = {text} setTexts = {setTexts} 
+                                    setCrntTerm= {setCrntTerm}
+                                    setCrntCat = {setCrntCat}
+                                    />))
+                            }
+                            
+                            <div className="switch-cont">
+                                <button onClick={()=>(setGrid(!isGrid))} > Grid view</button>
+                            </div>
                         </div>
                     </div>
                 </>
+                }
             else    // to give the user the choice to choose between an existing dataset or to annotate from scratch 
                 return <> 
                     <h1>Do you have an existing Dataset or you want to annotate from scratch?</h1>
