@@ -38,6 +38,15 @@ const DocView = ({setCrntCat, setCrntTerm, text, id, texts, setTexts, datasets, 
                                                                                     color= {CatColor} word={match}
                                                                                     />))
                     //duplicate but after you optimise your shit
+                    // newText = reactStringReplace(newText,`${entry} ` , (match, i)=>(<Word 
+                    //     setCrntCat= {setCrntCat}
+                    //     setCrntTerm={setCrntTerm} 
+                    //     setDatasets={setDatasets} datasets={datasets} 
+                    //     setDel={setDel} del={del} 
+                    //     setChange= {setChange} 
+                    //     catId={catId} category={key} 
+                    //     color= {CatColor} word={match}
+                    //     />))
  
 
             })

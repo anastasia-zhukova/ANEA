@@ -65,13 +65,35 @@
     position: fixed;
     left: 10px;
     top: 200px;
-
-    border: 2px solid red;
     width: 12.5%;
 
+    height: 65vh;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    -webkit-box-shadow: 0px 0px 5px 2px #000000; 
+    border-radius: 3px;
+    box-shadow: 0px 0px 5px 0px #000000;
+    overflow-y: scroll;
+
+}
+.cat-cont h3{
+    margin: 0;
 }
 
+.cat-cont h5{
+    border-radius: 4px;
+    margin: 5px 0;
+    display: flex;
+    justify-content: space-between;
+    color: white;
+    padding: 15px auto !important;
+}
 
+.del-btn{
+    font-size: 19px;
+    cursor: pointer;
+}
 
 .switch-cont{
     width: 85%;

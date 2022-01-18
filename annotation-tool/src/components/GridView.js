@@ -104,6 +104,7 @@ const GridView = ({datasets, setDatasets}) => {
             let newData = datasets;
             delete newData[0][keys[id]];
             setDatasets([...newData]);
+            //TODO delete its color
         }
     }
 

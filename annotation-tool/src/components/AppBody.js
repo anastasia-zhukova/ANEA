@@ -2,10 +2,11 @@
 import './AppBody.css';
 import React, { useState } from 'react';
 import GridView from './GridView';
+import Category from './Category';
 
 import DocView from './DocView';
-import { useEffect } from 'react/cjs/react.development';
 import Menu from './Menu';
+import { useEffect } from 'react/cjs/react.development';
 
 // import TRow from './TRow';
 // import { AiFillDelete } from 'react-icons/ai';
@@ -100,7 +101,12 @@ const AppBody = () => {
     const [currentCat, setCrntCat] = useState();
     // console.log(datasets);
 
-    
+    const delColor= (name) => {
+        let newColors = CatColors;
+        delete newColors[name];
+        SetColors({...newColors})
+
+    }
     const  populateData = async (e)=> {
         //try{
             await getData(e);
@@ -152,7 +158,7 @@ const AppBody = () => {
         let selectedText = window.getSelection().toString().trim();
         //var selRange = selectedText.getRangeAt(0);
         if(selectedText){
-            setCrntTerm(selectedText)
+            setCrntTerm(selectedText);
             setText(selectedText);
             setAdd(true);
             return;
@@ -162,6 +168,22 @@ const AppBody = () => {
 
         
         //console.log()
+    }
+    const returnCatsLegend =() => {
+        var keys = Object.keys(CatColors);
+        return(
+            //console.log(CatColors);
+            keys.map((key, index)=>(
+               // console.log(CatColors[key]);
+                <Category 
+                    key={index}
+                    delColor ={delColor}
+                    color={CatColors[key]} 
+                    catName={key}  catId ={index}
+                    datasets = {datasets} setDatasets= {setDatasets}
+                    />    
+            ))
+        );
     }
 
 
@@ -202,7 +224,10 @@ const AppBody = () => {
                         />
 
                         <div className='cat-cont'>
-                            sdfdsf
+                            <h3>Categories</h3>
+                            {
+                                returnCatsLegend()
+                            }
                         </div>
                         
                         <div className='texts-cont'>
@@ -243,7 +268,11 @@ const AppBody = () => {
       
     }
 
+    useEffect(()=>{
+        returnItem();
    
+    }, [datasets]);
+ 
     return (
 
         <div className='body-container'>

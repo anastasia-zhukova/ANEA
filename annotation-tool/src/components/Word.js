@@ -15,17 +15,7 @@ const Word = ({setCrntCat, setCrntTerm, datasets, setDatasets, word, color, cate
         cursor: "pointer"
     }
 
-    const delTdata = (id, td) => {
-
-        let keys = Object.keys( datasets[0]);
-        let newData = datasets;
-        let index = newData[0][ keys[id]].indexOf(td);
-        newData[0][ keys[id]].splice(index, 1);
-
-        setDatasets([...newData]);
-        
-
-    }
+  
     return (
         <>
             <span 
@@ -35,9 +25,7 @@ const Word = ({setCrntCat, setCrntTerm, datasets, setDatasets, word, color, cate
                         setChange(true);
                         setCrntTerm(word.trim());
                         setCrntCat(catId);
-            }}
-            
-            >
+            }}>
 
                 {word}
             </span>
