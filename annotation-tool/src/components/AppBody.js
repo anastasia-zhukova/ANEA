@@ -1,12 +1,13 @@
 
 import './AppBody.css';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import GridView from './GridView';
 import Category from './Category';
+import {MdOutlineAddBox} from 'react-icons/md'
 
 import DocView from './DocView';
 import Menu from './Menu';
-import { useEffect } from 'react/cjs/react.development';
+//import { useEffect } from 'react/cjs/react.development';
 
 // import TRow from './TRow';
 // import { AiFillDelete } from 'react-icons/ai';
@@ -17,7 +18,7 @@ import { useEffect } from 'react/cjs/react.development';
 //import { useState } from 'react';
 var filesData = [];
 var textsInFile = "";
-
+var fileName = "";
 
 
 const getText = (e) => {
@@ -53,25 +54,21 @@ const getData = (e) => {
     return new Promise((resolve, reject)=>{
 
         let files = e.target.files;
+        fileName = files[0].name
         filesData.splice(0, filesData.length)
         try{
-    
-        for (let i = 0; i < files.length; i++) {
+            for (let i = 0; i < files.length; i++) {
                 let fr = new FileReader();
                 fr.readAsText(files[i]);
                 fr.onload = () => {
-                
                     filesData.push(JSON.parse(fr.result));
                     resolve('ok');
-
                 }  
-
+            }
+        }catch(err){
+            console.error(err);
+                    reject(err);
         }
-
-    }catch(err){
-        console.error(err);
-                reject(err);
-    }
 
     })
 }
@@ -80,14 +77,10 @@ const getData = (e) => {
 
 
 
-
-
-
-
 const AppBody = () => {
 
     
-    const [datasets, setDatasets] = useState([]);
+    const [datasets, setDatasets] = useState([{}]);
     const [texts, setTexts] = useState([]);
     const [textSelected, setTextSelect] = useState(false);
     const [docSelected, setdocSelect] = useState(false);
@@ -99,7 +92,7 @@ const AppBody = () => {
     const [selectedTxt, setText] = useState("");
     const [currentTerm, setCrntTerm] =useState("");
     const [currentCat, setCrntCat] = useState();
-    // console.log(datasets);
+    let addCatInput = useRef();
 
     const delColor= (name) => {
         let newColors = CatColors;
@@ -107,20 +100,30 @@ const AppBody = () => {
         SetColors({...newColors})
 
     }
+    const checkEnter = (e) => {
+        if(e.keyCode !== 13) return;
+        addCategory();
+    }
+    const  addCategory = () => {
+        let newData = datasets;
+        
+        let catName = addCatInput.current.value.trim();
+        if (catName.length === 0) return;
+
+        newData[0][catName] = [];
+        addCatColor(catName);
+        setDatasets([...newData]);
+        addCatInput.current.value ="";
+
+
+
+    }
     const  populateData = async (e)=> {
-        //try{
+
             await getData(e);
             await setDatasets(filesData);
             setdocSelect(!docSelected);
-            generatColors();
-
-        // }catch(err){
-        //     console.error(err);
-        //     //alert("an error occured please check the file format")
-        // }
-        //setDocSelected(true) );
-            
-            
+            generatColors();        
     }
     
     const onchangeHandel = async  (e)=>{
@@ -144,9 +147,14 @@ const AppBody = () => {
         }
         return color;
       }
+    const addCatColor = (catName) => {
+        let newColors = CatColors;
+        newColors[catName] = getRandomColor();
+        SetColors({...newColors});
+    }
     const generatColors = ()=>{
         
-        Object.keys(filesData[0]).map(cat=>{
+        Object.keys(filesData[0]).map((cat)=>{
             let newColors = CatColors;
             newColors[cat] = getRandomColor();
 
@@ -185,6 +193,23 @@ const AppBody = () => {
             ))
         );
     }
+    const downloadObjectAsJson = (exportObj, exportName) => {
+        var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj));
+        var downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", exportName);
+        document.body.appendChild(downloadAnchorNode); // required for firefox
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+    }
+    const exportData = () => {
+        if (fileName)
+            downloadObjectAsJson(datasets[0], `annotated ${fileName}`);
+        else
+            downloadObjectAsJson(datasets[0], `annotated dataset.json`);
+
+      //console.log(datasets[0]);
+    }
 
 
     const returnItem = () => {
@@ -204,8 +229,9 @@ const AppBody = () => {
             if(docSelected)// when the dataset file is selected 
                 if(isGrid)
                     return <>
-                        <GridView datasets={datasets} setDatasets={setDatasets}/>
+                        <GridView  delColor={delColor} addCatColor={addCatColor} datasets={datasets} setDatasets={setDatasets}/>
                         <div className="switch-cont">
+                            <button className='export-btn' onClick={exportData} > Export dataset </button>
                             <button onClick={()=>(setGrid(!isGrid))} > Document view </button>
                         </div>
                     </>
@@ -224,7 +250,15 @@ const AppBody = () => {
                         />
 
                         <div className='cat-cont'>
-                            <h3>Categories</h3>
+                            <div>
+                                <h3>Categories</h3>
+                                <div className='valueContainer'>
+                                    <div className='addCatCont'>
+                                        <input type="text" ref={addCatInput} onKeyDown={(e)=>checkEnter(e)}/>
+                                        <MdOutlineAddBox color="#00ab95" className='addIcon' onClick={addCategory}/>
+                                    </div>
+                                </div>
+                            </div>
                             {
                                 returnCatsLegend()
                             }
@@ -244,7 +278,8 @@ const AppBody = () => {
                                     />))
                             }
                             
-                            <div className="switch-cont">
+                            <div className="switch-cont switch-contDoc">
+                                <button className='export-btn' onClick={exportData} > Export dataset </button>
                                 <button onClick={()=>(setGrid(!isGrid))} > Grid view</button>
                             </div>
                         </div>
@@ -259,7 +294,7 @@ const AppBody = () => {
                         <label className='annotate-lbl'  htmlFor='data-input'>
                             Select dataset
                         </label>
-                        <button className='annotate-btn'>Annotate from scratch</button>
+                        <button onClick={()=>(setdocSelect(!docSelected))} className='annotate-btn'>Annotate from scratch</button>
                     </div>
                 </>  
 
@@ -268,10 +303,10 @@ const AppBody = () => {
       
     }
 
-    useEffect(()=>{
-        returnItem();
+    // useEffect(()=>{
+    //     returnItem();
    
-    }, [datasets]);
+    // }, [datasets]);
  
     return (
 

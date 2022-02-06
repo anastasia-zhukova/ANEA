@@ -12,6 +12,16 @@
     box-shadow: 0px 0px 5px 0px #000000;
     
 }
+.cats-div::-webkit-scrollbar {
+    display: none;
+    
+  }
+  
+  /* Hide scrollbar for IE, Edge and Firefox */
+.cats-div {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
 .menu-cont h5{
     margin: 0;
     padding: 20px 0;

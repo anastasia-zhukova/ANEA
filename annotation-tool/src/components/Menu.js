@@ -1,6 +1,6 @@
 
 import './Menu.css'
-import React, { useRef } from 'react'
+
 import { useState } from 'react/cjs/react.development';
 
 const Menu = ({currentCat, datasets, add, change, del,setAdd, setDel, setChange, selectedTxt, setDatasets, currentTerm}) => {

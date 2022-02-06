@@ -17,7 +17,14 @@
     height: 50vh;
     
 }
-
+.addCatCont{
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+.addCatCont input{
+    width: 85%;
+}
 .inputs-container label{
     cursor: pointer;
     padding: 20px 60px;
@@ -61,6 +68,16 @@
     margin: auto;
     padding: 0 20px;
 }
+
+.cat-cont::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Hide scrollbar for IE, Edge and Firefox */
+.cat-cont {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
 .cat-cont{
     position: fixed;
     left: 10px;
@@ -96,7 +113,7 @@
 }
 
 .switch-cont{
-    width: 85%;
+    width: 90%;
     margin: auto;
     display: flex;
     justify-content: flex-end;
@@ -109,4 +126,10 @@
     background-color: #00ab95;
     font-size: 16px;
 
+}
+.export-btn{
+    margin-right: 15px;
+}
+.switch-contDoc{
+    width: 100%;
 }

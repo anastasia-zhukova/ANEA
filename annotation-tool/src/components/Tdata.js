@@ -23,7 +23,11 @@ const Tdata = ({data, id, addCell, delTdata, editData, addEntry}) => {
     let inputRef = useRef()
     let newEntryInput = useRef();
 
-
+    const checkEnter = (e) => {
+        if(e.keyCode !== 13) return;
+        addEntry(id,  newEntryInput.current.value);
+        newEntryInput.current.value= "";
+    }
     const handelEditField = () => {
         if(!valueSelected){
             setSelection(true);
@@ -42,7 +46,7 @@ const Tdata = ({data, id, addCell, delTdata, editData, addEntry}) => {
             //console.log(id);
             return <>
                     <div className='valueContainer'>
-                            <input type="text" ref={newEntryInput}  />
+                            <input type="text" ref={newEntryInput}  onKeyDown={(e)=>checkEnter(e)}/>
                             <MdOutlineAddBox className='addIcon' onClick={()=>{addEntry(id, newEntryInput.current.value); newEntryInput.current.value = ""}}/>
                     </div>
                 </>

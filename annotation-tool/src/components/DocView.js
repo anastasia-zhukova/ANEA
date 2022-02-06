@@ -5,7 +5,7 @@ import arrowIcon from '../assets/arrow-white.svg';
 import reactStringReplace from 'react-string-replace'
 import Word from './Word';
 
-import Menu from './Menu';
+
 
 
 
@@ -28,7 +28,7 @@ const DocView = ({setCrntCat, setCrntTerm, text, id, texts, setTexts, datasets, 
         for (let [key, value] of Object.entries(datasets[0])) {
             let CatColor = colors[key]
             value.forEach(entry => {
-                newText = reactStringReplace(newText,` ${entry} ` , (match, i)=>(<Word 
+                newText = reactStringReplace(newText,` ${entry} ` , (match)=>(<Word 
                                                                                     setCrntCat= {setCrntCat}
                                                                                     setCrntTerm={setCrntTerm} 
                                                                                     setDatasets={setDatasets} datasets={datasets} 

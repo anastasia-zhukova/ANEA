@@ -10,7 +10,7 @@ import Tdata from './Tdata';
 
 
 
-const GridView = ({datasets, setDatasets}) => {
+const GridView = ({datasets, setDatasets, addCatColor, delColor}) => {
     const [headers, setHeaders] = useState([]);
     const [tableData, setTableData] = useState([]);
      //TODO u may need to move this back to the App component
@@ -51,7 +51,6 @@ const GridView = ({datasets, setDatasets}) => {
 
     }
     const getHeader =(datasets) => {
-        console.log(datasets);
         let headers = [];
         let id = 0;
         var map = datasets.map((td) => Object.entries(td));
@@ -73,7 +72,8 @@ const GridView = ({datasets, setDatasets}) => {
     
     }
     const getRows = (datasets) => {
-        let data = [];
+        if(Object.keys(datasets[0]).length){
+            let data = [];
             var map = datasets.map((td) => Object.entries(td));
             
             let array = map[0];
@@ -90,9 +90,11 @@ const GridView = ({datasets, setDatasets}) => {
                 
             }
             data = labelValues[k].map((_, colIndex) => labelValues.map(row => row[colIndex]));
-     
-            //console.log(data)
+
             setTableData(data);
+        }
+       
+
     }
 
 
@@ -103,11 +105,15 @@ const GridView = ({datasets, setDatasets}) => {
         if(window.confirm(`are you sure you want to delete the category: ${keys[id]}? `)){
             let newData = datasets;
             delete newData[0][keys[id]];
+            delColor(keys[id]);
             setDatasets([...newData]);
             //TODO delete its color
         }
     }
-
+    const checkEnter = (e) => {
+        if(e.keyCode !== 13) return;
+        addCategory();
+    }
     const  addCategory = () => {
         let newData = datasets;
         
@@ -115,6 +121,7 @@ const GridView = ({datasets, setDatasets}) => {
         if (catName.length === 0) return;
 
         newData[0][catName] = [];
+        addCatColor(catName);
         setDatasets([...newData]);//TODO che
         //console.log(newData);
         catInput.current.value ="";
@@ -147,7 +154,7 @@ const GridView = ({datasets, setDatasets}) => {
                             <tr>
                                 <th>
                                     <div className='valueContainer'>
-                                    <input type="text"  ref={catInput} />
+                                    <input type="text"  ref={catInput} onKeyDown={(e)=>checkEnter(e)}/>
                                     <MdOutlineAddBox className='addIcon' onClick={addCategory}/>
                                     </div>
                                 </th>
@@ -173,7 +180,7 @@ const GridView = ({datasets, setDatasets}) => {
                             </tr>
                             {
                                 
-                                tableData.map((row)=>(<TRow editData={editData} delTdata={delTdata} key = {countRows++} count= {countRows} row ={row} />))
+                                tableData.map((row)=>(<TRow  editData={editData} delTdata={delTdata} key = {countRows++} count= {countRows} row ={row} />))
                             }
                     
                         </tbody>
