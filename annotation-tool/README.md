@@ -1,12 +1,22 @@
-# Getting Started with Create React App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Annotation Tool for Creating Domain-specific Text Datasets
 
-## Available Scripts
+## Project description
+This project is a user friendly tool that helps annotate texts, modify or creat NER datasets.
+The tool is able to annotate text either from scratch or based on an already existing dataset.
+It takes as input texts and the datasets (if any) as JSON files.
+
+The project was developed using ReactJs 
+
+
+
+## Run localy
+The project was made using reactJs so to run or continue developping the project the normal react commands are used.
+
 
 In the project directory, you can run:
 
-### `npm start`
+### `npm start` 
 
 Runs the app in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
@@ -21,50 +31,86 @@ See the section about [running tests](https://facebook.github.io/create-react-ap
 
 ### `npm run build`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Application inputs
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+The application accepts as inputs only JSON files with a specific format
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+#### Texts input
+The data structure for the texts file should be as follows:
 
-### `npm run eject`
+    [
+    "text 1",
+    "text2",
+    "text3",
+    "..."
+    ]
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+#### Datasets input
+In case there is a dataset containing pre-annotated terms/labels, it can be imported with the following structure:
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+    { 
+    "category name": [array of values],
+    "category name": [array of values],
+    }
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
 
-## Learn More
+#### Data interaction within the App
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+In the app background, there is some react states that hold the data for the entire app. Like a centralized data source.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+The following scheme shows how does the data is interlinked in the app.
 
-### Code Splitting
+![document view](./src/assets/data_interaction.png)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
 
-### Analyzing the Bundle Size
+## How to use the Application
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### Data loading:
+After clicking "get started" on the home screen, a new page appears with a single button to upload the text(s) to be annotated.
 
-### Making a Progressive Web App
+![text loading](./src/assets/upload_text.png)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+After the text(s) is loaded another page appears to choose a dataset if available, otherwise the user can just annotate their text(s) from scratch.
 
-### Advanced Configuration
+![text loading](./src/assets/upload_data.png)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
 
-### Deployment
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+### Document view
+The document view shows the annotated text in the middle with the control panels on the sides
 
-### `npm run build` fails to minify
++Left control panel:
+    It's a panel used to add/delete the categories 
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
++Right control panel:
+    It's a panel used to manipulate the terms selected (a non-annotated term could be selected by a normal text selection, while a pre-annotated term gets selected by a simple click on it). After selecting a term, the buttons on the right panel get enabled to add/delete or modify the term.
+
++Text container:
+    Container containing the text annotated 
+
++page bottom:
+    At the bottom the user can find two buttons to export their new annotated dataset, or switch the grid view, which we will be discussing next.
+
+
+![document view](./src/assets/doc_view.png)
+![document view](./src/assets/doc_view2.png)
+
+### Table view 
+
+The table/Grid view makes it possible to visualize the dataset modified by the user in a table, that supports all the manipulations possible in the document view, which means from within the table it's possible to delete/add or modify a term or it's Category.
+
++delete Category:
+    it is possible to delete a category by clicking the delete button next to each category name.
+
++Add category:
+    it is possible to add a category by filling the text field in the top left of the table, then pressing enter or the plus button.
+
+The same concepts could be used to add, delete or modify a value within the table.
+
+Again, the two buttons at the end of the page are used to export the dataset or to switch to the other view.
+
+
+![document view](./src/assets/table_view.png)
+
+
