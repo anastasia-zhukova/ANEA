@@ -1,0 +1,135 @@
+
+
+
+
+.body-container {
+    margin-top: 120px;
+    align-items: center;
+    
+}
+
+
+.inputs-container {
+    margin: 75px 0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    height: 50vh;
+    
+}
+.addCatCont{
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+.addCatCont input{
+    width: 85%;
+}
+.inputs-container label{
+    cursor: pointer;
+    padding: 20px 60px;
+    font-size: 30px;
+    background-color: #00ab95;
+    color: white;
+    font-weight: bold;
+    border-radius: 7px;
+    /* width: 17%; */
+
+}
+.annotate-lbl{
+    border-radius: 7px 0 0 7px !important;
+    border-right: 1px solid white;
+    
+}
+.annotate-btn{
+    border: none;
+    cursor: pointer;
+    padding: 20px 40px;
+    font-size: 30px;
+    background-color: #00ab95;
+    color: white;
+    font-weight: bold;
+    /* width: 26%; */
+
+    border-radius: 0 7px  7px 0 !important;
+    border-left: 1px solid white;
+
+} 
+.annotate-btn:hover, .annotate-lbl:hover{
+    background-color: #00bfa7;
+}
+.inputs-container input {
+    display: none;
+}
+
+
+.docView-cont{
+    width: 75%;
+    margin: auto;
+    padding: 0 20px;
+}
+
+.cat-cont::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Hide scrollbar for IE, Edge and Firefox */
+.cat-cont {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+.cat-cont{
+    position: fixed;
+    left: 10px;
+    top: 200px;
+    width: 12.5%;
+
+    height: 65vh;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    -webkit-box-shadow: 0px 0px 5px 2px #000000; 
+    border-radius: 3px;
+    box-shadow: 0px 0px 5px 0px #000000;
+    overflow-y: scroll;
+
+}
+.cat-cont h3{
+    margin: 0;
+}
+
+.cat-cont h5{
+    border-radius: 4px;
+    margin: 5px 0;
+    display: flex;
+    justify-content: space-between;
+    color: white;
+    padding: 15px auto !important;
+}
+
+.del-btn{
+    font-size: 19px;
+    cursor: pointer;
+}
+
+.switch-cont{
+    width: 90%;
+    margin: auto;
+    display: flex;
+    justify-content: flex-end;
+}
+.switch-cont button{
+    border:none;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #00ab95;
+    font-size: 16px;
+
+}
+.export-btn{
+    margin-right: 15px;
+}
+.switch-contDoc{
+    width: 100%;
+}
