@@ -11,7 +11,7 @@ scikit-learn==0.23.2
 beautifulsoup4==4.9.3
 ftfy==5.8
 progressbar2==3.53.1
-nltk==3.5
+nltk==3.9.3
 textblob-de==0.4.3
 gdown==3.12.2
 HanTa==0.2.0
